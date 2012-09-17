@@ -2,15 +2,37 @@
 
 In order to communicate with elevator, a Python client is avalaible (more to come. Feel free to make your own, I'll be glad to merge it into the repo).
 
-It exposes the Elevator object which api is quite similar to py-leveldb one. This similarity was kept in order to enhance the move from py-leveldb to Elevator in already existing projects. Note that by default, client to 'default' database. As Elevator implements a multi-db system, you can create/list/delete/repair databases. To connect to another database, use the eponyme function .connect()
+It exposes the Elevator object which api is quite similar to py-leveldb one. This similarity was kept in order to enhance the move from py-leveldb to Elevator in already existing projects.
+Note that by default, client to 'default' database.
+As Elevator implements a multi-db system, you can create/list/delete/repair databases.
+To connect to another database, use the eponyme function .connect()
+
+### Databases workaround
+
+```python
+>>> from pyelevator import Elevator
+>>> E = Elevator()                 # Elevator server holds a default db
+>>> E.db_name                      # which the client will automatically
+'default'                          # connect to
+
+>>> E.listdb()                     # You can list remote databases
+['default', ]
+
+>>> E.createdb('testdb')           # Create a db
+>>> E.listdb()
+['default', 'testdb', ]
+>>> E.connect('testdb')            # And bind your client to that new Db.
+>>> E.connect('dbthatdoesntexist') # Note that you canno't connect to a db that doesn't exist yet
+KeyError : "Database does not exist"
+```
 
 *Here is a demo*:
 
 ```python
->>> from elevator.client import Elevator
->>> E = Elevator()  # N.B : connected to 'default'
+>>> from pyelevator import Elevator
+>>> E = Elevator()             # N.B : connected to 'default'
 >>> Ebis = Elevator('testdb')  # You can even construct your client with desired db to connect to
->>> E.connect('testdbbis')  # Or even rebind client to a new database
+>>> E.connect('testdbbis')     # Or even rebind client to a new database
 >>> E.Put('abc', 'cba')
 >>> E.Get('abc')
 'cba'
