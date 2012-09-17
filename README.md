@@ -1,11 +1,12 @@
-# Client
+# Overview
 
-In order to communicate with elevator, a Python client is avalaible (more to come. Feel free to make your own, I'll be glad to merge it into the repo).
+py-elevator is a python client for [Elevator](http://github.com/oleiade/Elevator), a minimalistic database engine written in Python and based on levelDB.
+Allows async, multithreaded and/or remote acces to a multidb backend.
+Relying on the zeromq network library and msgpack serialization format, it is made to be portable between languages and platforms.
 
-It exposes the Elevator object which api is quite similar to py-leveldb one. This similarity was kept in order to enhance the move from py-leveldb to Elevator in already existing projects.
-Note that by default, client to 'default' database.
-As Elevator implements a multi-db system, you can create/list/delete/repair databases.
-To connect to another database, use the eponyme function .connect()
+# Usage
+
+*See [Elevator](http://oleiade.github.com/Elevator) documentation for details about server usage and implementation*
 
 ### Databases workaround
 
@@ -68,12 +69,11 @@ KeyError : "Database does not exist"
 ]
 ```
 
-Batches are implemented too.
+### Batches 
+
 They're very handy and very fast when it comes to write a lot of datas to the database.
 See LevelDB documentation for more informations. Use it through the WriteBatch client module class.
 It has three base methods modeled on LevelDB's Put, Delete, Write.
-
-*Example*:
 
 ```python
 >>> from pyelevator import WriteBatch, Elevator
