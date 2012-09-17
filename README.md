@@ -35,20 +35,18 @@ KeyError : "Database does not exist"
 ['default', '/path/to/my/existing/leveldb', ]
 ```
 
-*Here is a demo*:
+### Interact with a database:
 
 ```python
 >>> from pyelevator import Elevator
 >>> E = Elevator()             # N.B : connected to 'default'
->>> Ebis = Elevator('testdb')  # You can even construct your client with desired db to connect to
->>> E.connect('testdbbis')     # Or even rebind client to a new database
 >>> E.Put('abc', 'cba')
 >>> E.Get('abc')
 'cba'
 >>> E.Delete('abc')
 >>> for i in xrange(10):
 ...     E.Put(str(i), str(i))
->>> E.Range('1', '9')
+>>> E.Range('1', '9')          # Range supports key_from, key_to params
 [['1','1'],
  ['2','2'],
  ['3', '3'],
@@ -59,23 +57,26 @@ KeyError : "Database does not exist"
  ['8', '8'],
  ['9', '9'],
 ]
->>> E.Range('1', 2)
+>>> E.Range('1', 2)            # Or key_from, limit params
 [['1', '1'],
  ['2', '2'],
 ]
->>> it = E.RangeIter('1', 2)
->>> list(it)
+>>> it = E.RangeIter('1', '2') # When RangeIter only knows about key_from/key_to for py-leveldb api
+>>> list(it)                   # compatibility reasons
 [['1', '1'],
  ['2', '2'],
 ]
 ```
 
-Batches are implemented too. They're very handy and very fast when it comes to write a lot of datas to the database. See LevelDB documentation for more informations. Use it through the WriteBatch client module class. It has three base methods modeled on LevelDB's Put, Delete, Write.
+Batches are implemented too.
+They're very handy and very fast when it comes to write a lot of datas to the database.
+See LevelDB documentation for more informations. Use it through the WriteBatch client module class.
+It has three base methods modeled on LevelDB's Put, Delete, Write.
 
 *Example*:
 
 ```python
->>> from elevator.client import WriteBatch, Elevator
+>>> from pyelevator import WriteBatch, Elevator
 >>> batch = WriteBatch()  # N.B : port, host, and timeout options are available here
 >>> batch.Put('a', 'a')
 >>> batch.Put('b', 'b')
@@ -114,6 +115,8 @@ KeyError: "Key not found"
 * **createdb(db_name)**, creates a database
 
 * **dropdb(db_name)**, drops an existing database
+
+* **repairdb()**, repairs currently connected database
 
 ## WriteBatch object
 
