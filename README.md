@@ -1,11 +1,12 @@
-# Client
+# Overview
 
-In order to communicate with elevator, a Python client is avalaible (more to come. Feel free to make your own, I'll be glad to merge it into the repo).
+*py-elevator* is a python client for [Elevator](http://github.com/oleiade/Elevator), a minimalistic database engine written in Python and based on levelDB.
+Allows async, multithreaded and/or remote acces to a multidb backend.
+Relying on the zeromq network library and msgpack serialization format, it is made to be portable between languages and platforms.
 
-It exposes the Elevator object which api is quite similar to py-leveldb one. This similarity was kept in order to enhance the move from py-leveldb to Elevator in already existing projects.
-Note that by default, client to 'default' database.
-As Elevator implements a multi-db system, you can create/list/delete/repair databases.
-To connect to another database, use the eponyme function .connect()
+# Usage
+
+*See [Elevator](http://oleiade.github.com/Elevator) documentation for details about server usage and implementation*
 
 ### Databases workaround
 
@@ -24,22 +25,29 @@ To connect to another database, use the eponyme function .connect()
 >>> E.connect('testdb')            # And bind your client to that new Db.
 >>> E.connect('dbthatdoesntexist') # Note that you canno't connect to a db that doesn't exist yet
 KeyError : "Database does not exist"
+>>> E.repairdb()                   # Sometimes, leveldb just messes up with the backend
+>>> E.dropdb('testdb')             # When you're done with a db, you can drop it. Note that all it's files
+                                   # will be droped too.
+                                   
+# You can even register a pre-existing leveldb db
+# as an Elevator db. By creating it using it's path.
+>>> E.createdb('/path/to/my/existing/leveldb')
+>>> E.listdb()
+['default', '/path/to/my/existing/leveldb', ]
 ```
 
-*Here is a demo*:
+### Interact with a database:
 
 ```python
 >>> from pyelevator import Elevator
 >>> E = Elevator()             # N.B : connected to 'default'
->>> Ebis = Elevator('testdb')  # You can even construct your client with desired db to connect to
->>> E.connect('testdbbis')     # Or even rebind client to a new database
 >>> E.Put('abc', 'cba')
 >>> E.Get('abc')
 'cba'
 >>> E.Delete('abc')
 >>> for i in xrange(10):
 ...     E.Put(str(i), str(i))
->>> E.Range('1', '9')
+>>> E.Range('1', '9')          # Range supports key_from, key_to params
 [['1','1'],
  ['2','2'],
  ['3', '3'],
@@ -50,23 +58,25 @@ KeyError : "Database does not exist"
  ['8', '8'],
  ['9', '9'],
 ]
->>> E.Range('1', 2)
+>>> E.Range('1', 2)            # Or key_from, limit params
 [['1', '1'],
  ['2', '2'],
 ]
->>> it = E.RangeIter('1', 2)
->>> list(it)
+>>> it = E.RangeIter('1', '2') # When RangeIter only knows about key_from/key_to for py-leveldb api
+>>> list(it)                   # compatibility reasons
 [['1', '1'],
  ['2', '2'],
 ]
 ```
 
-Batches are implemented too. They're very handy and very fast when it comes to write a lot of datas to the database. See LevelDB documentation for more informations. Use it through the WriteBatch client module class. It has three base methods modeled on LevelDB's Put, Delete, Write.
+### Batches 
 
-*Example*:
+They're very handy and very fast when it comes to write a lot of datas to the database.
+See LevelDB documentation for more informations. Use it through the WriteBatch client module class.
+It has three base methods modeled on LevelDB's Put, Delete, Write.
 
 ```python
->>> from elevator.client import WriteBatch, Elevator
+>>> from pyelevator import WriteBatch, Elevator
 >>> batch = WriteBatch()  # N.B : port, host, and timeout options are available here
 >>> batch.Put('a', 'a')
 >>> batch.Put('b', 'b')
@@ -105,6 +115,8 @@ KeyError: "Key not found"
 * **createdb(db_name)**, creates a database
 
 * **dropdb(db_name)**, drops an existing database
+
+* **repairdb()**, repairs currently connected database
 
 ## WriteBatch object
 
