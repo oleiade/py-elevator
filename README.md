@@ -1,6 +1,6 @@
 # Overview
 
-py-elevator is a python client for [Elevator](http://github.com/oleiade/Elevator), a minimalistic database engine written in Python and based on levelDB.
+*py-elevator* is a python client for [Elevator](http://github.com/oleiade/Elevator), a minimalistic database engine written in Python and based on levelDB.
 Allows async, multithreaded and/or remote acces to a multidb backend.
 Relying on the zeromq network library and msgpack serialization format, it is made to be portable between languages and platforms.
 
