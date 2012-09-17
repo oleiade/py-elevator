@@ -77,8 +77,9 @@ It has three base methods modeled on LevelDB's Put, Delete, Write.
 
 ```python
 >>> from pyelevator import WriteBatch, Elevator
->>> batch = WriteBatch()  # N.B : port, host, and timeout options are available here
->>> batch.Put('a', 'a')
+>>> batch = WriteBatch()          # Just like Elevator object, WriteBatch connects to 'default' as a default
+>>> batch = WriteBatch('testdb')  # But as it supports the exact same options that Elevator, you can
+>>> batch.Put('a', 'a')           # Init it with a pre-existing db
 >>> batch.Put('b', 'b')
 >>> batch.Put('c', 'c')
 >>> batch.Delete('c')
