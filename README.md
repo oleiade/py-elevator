@@ -24,6 +24,15 @@ To connect to another database, use the eponyme function .connect()
 >>> E.connect('testdb')            # And bind your client to that new Db.
 >>> E.connect('dbthatdoesntexist') # Note that you canno't connect to a db that doesn't exist yet
 KeyError : "Database does not exist"
+>>> E.repairdb()                   # Sometimes, leveldb just messes up with the backend
+>>> E.dropdb('testdb')             # When you're done with a db, you can drop it. Note that all it's files
+                                   # will be droped too.
+                                   
+# You can even register a pre-existing leveldb db
+# as an Elevator db. By creating it using it's path.
+>>> E.createdb('/path/to/my/existing/leveldb')
+>>> E.listdb()
+['default', '/path/to/my/existing/leveldb', ]
 ```
 
 *Here is a demo*:
