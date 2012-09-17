@@ -67,18 +67,29 @@ KeyError: "Key not found"
 ### Methods
 
 **Get(key)**, fetches a specific key in connected db
+
 **Put(key, value)**, inserts key/value pair in connected db
+
 **Delete(key)**, deletes the specified key in connected db
+
 **Range(start=None, limit=None)**, returns a whole lot of data following the specified key range, note that limit can whether be a key to stop to, or an offset.
+
 **RangeIter(start=None, limit=None)**, idem, but returns an iterator
+
 **connect(db_name)**, connects the current Elevator instance to a database
+
 **listdb()**, lists server databases
+
 **createdb(db_name)**, creates a database
+
+**dropdb(db_name)**, drops an existing database
 
 ## WriteBatch object
 
 ### Methods
 
 **Put(key, value)**, stack a command to insert a key/value pair in WriteBatch instance
+
 **Delete(key)**, stack a command to delete the key in WriteBatch
+
 **Write()**, applies the WriteBatch server-side
