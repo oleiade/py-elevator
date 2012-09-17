@@ -6,7 +6,7 @@ class RangeIter(object):
         self._container = range_datas if self._valid_range(range_datas) else None
 
     def _valid_range(self, range_datas):
-        if (not isinstance(range_datas, (list, tuple)) or
+        if range_datas and (not isinstance(range_datas, (list, tuple)) or
             any(not isinstance(pair, (list, tuple)) for pair in range_datas)):
             raise ValueError("Range datas format not recognized")
         return True
