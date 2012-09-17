@@ -38,7 +38,7 @@ class Elevator(Client):
     def Range(self, start=None, limit=None):
         return self.send(self.db_uid, 'RANGE', [start, limit])
 
-    def RangeIter(self, start=None, limit=None):
-        range_datas = self.Range(start, limit)
+    def RangeIter(self, key_from=None, key_to=None):
+        range_datas = self.Range(key_from, key_to)
         return RangeIter(range_datas)
 
