@@ -17,7 +17,6 @@ class Client(object):
         self.bind = kwargs.pop('bind', '127.0.0.1')
         self.port = kwargs.pop('port', '4141')
         self._db_uid = None
-        self.timeout = kwargs.pop('timeout', 10 * 10000)
         self.host = "%s://%s:%s" % (self.protocol, self.bind, self.port)
 
         db = 'default' if db is None else db
