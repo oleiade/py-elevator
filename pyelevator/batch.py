@@ -9,6 +9,12 @@ class WriteBatch(Client):
         self.container = []
         super(WriteBatch, self).__init__(*args, **kwargs)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.Write()
+
     def Put(self, key, value):
         self.container.append([SIGNAL_BATCH_PUT, key, value])
 
