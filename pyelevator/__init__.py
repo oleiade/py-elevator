@@ -9,5 +9,5 @@ __license__ = "BSD"
 
 __version__ = '.'.join(map(str, version))
 
-from .elevator import Elevator
+from .client import Elevator
 from .batch import WriteBatch

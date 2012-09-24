@@ -1,16 +1,21 @@
+from __future__ import absolute_import
+
+from .constants import SIGNAL_BATCH_PUT, SIGNAL_BATCH_DELETE
 from .base import Client
 
 
 class WriteBatch(Client):
     def __init__(self, *args, **kwargs):
-        self.container = {}
+        self.container = []
         super(WriteBatch, self).__init__(*args, **kwargs)
 
     def Put(self, key, value):
-        self.container[key] = value
+        self.container.append([SIGNAL_BATCH_PUT, key, value])
 
     def Delete(self, key):
-        del self.container[key]
+        self.container.append([SIGNAL_BATCH_DELETE, key])
 
     def Write(self):
-        return self.send(self.db_uid, 'BATCH', [self.container.items()])
+        self.send(self.db_uid, 'BATCH', [self.container])
+        self.container = []
+        return
