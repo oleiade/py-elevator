@@ -23,6 +23,12 @@ class RangeIter(object):
 
 
 class Elevator(Client):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        pass
+
     def Get(self, key):
         return self.send(self.db_uid, 'GET', [key])
 
