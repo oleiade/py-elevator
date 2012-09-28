@@ -1,0 +1,4 @@
+python-msgpack
+pyzmq
+ujson
+-e pip install -e git://github.com/oleiade/Elevator.git@elevator-0.2d#egg=elevator
