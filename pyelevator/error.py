@@ -1,6 +1,12 @@
 from __future__ import absolute_import
-from elevator.constants import *
+from .constants import *
 
+
+class DatabaseError(Exception):
+    pass
+
+class SignalError(Exception):
+    pass
 
 ELEVATOR_ERROR = {
     TYPE_ERROR: TypeError,
@@ -9,4 +15,6 @@ ELEVATOR_ERROR = {
     INDEX_ERROR: IndexError,
     RUNTIME_ERROR: RuntimeError,
     OS_ERROR: OSError,
+    DATABASE_ERROR: DatabaseError,
+    SIGNAL_ERROR: SignalError,
 }
