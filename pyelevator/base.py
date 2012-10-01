@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import zmq
 import msgpack
 
-from .message import Message
+from .message import Request, Response
 from .error import ELEVATOR_ERROR
 
 from elevator.constants import FAILURE_STATUS
@@ -53,11 +53,10 @@ class Client(object):
     def repairdb(self):
         return self.send(self.db_uid, 'DBREPAIR', {})
 
-    def send(self, db_uid, command, datas):
-        self.socket.send_multipart([Message(db_uid=db_uid, command=command, data=datas)])
-        status, content = msgpack.unpackb(self.socket.recv_multipart()[0])
+    def send(self, db_uid, command, args):
+        self.socket.send_multipart([Request(db_uid=db_uid, command=command, args=args)])
+        response = Response(self.socket.recv_multipart()[0])
 
-        if status == FAILURE_STATUS:
-            error_code, error_msg = content
-            raise ELEVATOR_ERROR[error_code](error_msg)
-        return content
+        if response.error is not None:
+            raise ELEVATOR_ERROR[response.error['code']](response.error['msg'])
+        return response.datas
