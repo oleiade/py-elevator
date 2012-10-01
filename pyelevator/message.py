@@ -1,7 +1,7 @@
 import msgpack
 import logging
 
-from elevator.constants import FAILURE_STATUS
+from .constants import FAILURE_STATUS
 
 
 class MessageFormatError(Exception):
