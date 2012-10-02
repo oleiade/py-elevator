@@ -42,9 +42,7 @@ class Elevator(Client):
     def Delete(self, key, *args, **kwargs):
         return self.send(self.db_uid, 'DELETE', [key], *args, **kwargs)
 
-    def Range(self, *args, **kwargs):
-        start = kwargs.pop('start', None)
-        limit = kwargs.pop('limit', None)
+    def Range(self, start=None, limit=None, *args, **kwargs):
         return self.send(self.db_uid, 'RANGE', [start, limit], *args, **kwargs)
 
     def RangeIter(self, key_from=None, key_to=None, *args, **kwargs):
