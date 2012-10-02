@@ -14,7 +14,7 @@ class Client(object):
         self.protocol = kwargs.pop('protocol', 'tcp')
         self.bind = kwargs.pop('bind', '127.0.0.1')
         self.port = kwargs.pop('port', '4141')
-        self.timeout = sec_to_ms(kwargs.pop('timeout', 1))
+        self._timeout = sec_to_ms(kwargs.pop('timeout', 1))
 
         self._db_uid = None
         self.host = "%s://%s:%s" % (self.protocol, self.bind, self.port)
@@ -36,6 +36,16 @@ class Client(object):
     def _close(self):
         self.socket.close()
         self.context.term()
+
+    @property
+    def timeout(self):
+        if not hasattr(self, '_timeout'):
+            self.timeout = self.sec_to_ms(1)
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, value):
+        self._timeout = sec_to_ms(value)
 
     def connect(self, db_name, *args, **kwargs):
         self.db_uid = self.send(db_name, 'DBCONNECT', [db_name], *args, **kwargs)
