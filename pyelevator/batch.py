@@ -21,7 +21,7 @@ class WriteBatch(Client):
     def Delete(self, key):
         self.container.append([SIGNAL_BATCH_DELETE, key])
 
-    def Write(self):
-        self.send(self.db_uid, 'BATCH', [self.container])
+    def Write(self, *args, **kwargs):
+        self.send(self.db_uid, 'BATCH', [self.container], *args, **kwargs)
         self.container = []
         return

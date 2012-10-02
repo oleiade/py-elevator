@@ -1,12 +1,10 @@
 from __future__ import absolute_import
 
 import zmq
-import msgpack
 
 from .message import Request, Response
-from .error import ELEVATOR_ERROR
-
-from elevator.constants import FAILURE_STATUS
+from .error import ELEVATOR_ERROR, TimeoutError
+from .utils.snippets import sec_to_ms
 
 from elevator.db import DatabaseOptions
 
@@ -16,6 +14,8 @@ class Client(object):
         self.protocol = kwargs.pop('protocol', 'tcp')
         self.bind = kwargs.pop('bind', '127.0.0.1')
         self.port = kwargs.pop('port', '4141')
+        self.timeout = sec_to_ms(kwargs.pop('timeout', 1))
+
         self._db_uid = None
         self.host = "%s://%s:%s" % (self.protocol, self.bind, self.port)
 
@@ -27,7 +27,9 @@ class Client(object):
 
     def _connect(self, db):
         self.context = zmq.Context()
+        self.poller = zmq.Poller()
         self.socket = self.context.socket(zmq.XREQ)
+        self.poller.register(self.socket, zmq.POLLIN)
         self.socket.connect(self.host)
         self.connect(db)
 
@@ -35,28 +37,35 @@ class Client(object):
         self.socket.close()
         self.context.term()
 
-    def connect(self, db_name):
-        self.db_uid = self.send(db_name, 'DBCONNECT', [db_name])
+    def connect(self, db_name, *args, **kwargs):
+        self.db_uid = self.send(db_name, 'DBCONNECT', [db_name], *args, **kwargs)
         self.db_name = db_name
         return
 
-    def listdb(self):
-        return self.send(self.db_uid, 'DBLIST', {})
+    def listdb(self, *args, **kwargs):
+        return self.send(self.db_uid, 'DBLIST', {}, *args, **kwargs)
 
-    def createdb(self, key, db_options=None):
-        db_options = db_options if not None else DatabaseOptions()
-        return self.send(self.db_uid, 'DBCREATE', [key, db_options])
+    def createdb(self, key, *args, **kwargs):
+        db_options = kwargs.pop('db_options', DatabaseOptions())
+        return self.send(self.db_uid, 'DBCREATE', [key, db_options], *args, **kwargs)
 
-    def dropdb(self, key):
-        return self.send(self.db_uid, 'DBDROP', [key])
+    def dropdb(self, key, *args, **kwargs):
+        return self.send(self.db_uid, 'DBDROP', [key], *args, **kwargs)
 
-    def repairdb(self):
-        return self.send(self.db_uid, 'DBREPAIR', {})
+    def repairdb(self, *args, **kwargs):
+        return self.send(self.db_uid, 'DBREPAIR', {}, *args, **kwargs)
 
-    def send(self, db_uid, command, args):
-        self.socket.send_multipart([Request(db_uid=db_uid, command=command, args=args)])
-        response = Response(self.socket.recv_multipart()[0])
+    def send(self, db_uid, command, arguments, *args, **kwargs):
+        timeout = sec_to_ms(kwargs.get('timeout', 0)) or self.timeout
+        self.socket.send_multipart([Request(db_uid=db_uid, command=command, args=arguments)])
 
-        if response.error is not None:
-            raise ELEVATOR_ERROR[response.error['code']](response.error['msg'])
-        return response.datas
+        while True:
+            socks = dict(self.poller.poll(timeout))
+            if socks:
+                if socks.get(self.socket) == zmq.POLLIN:
+                    response = Response(self.socket.recv_multipart(flags=zmq.NOBLOCK)[0])
+                    if response.error is not None:
+                        raise ELEVATOR_ERROR[response.error['code']](response.error['msg'])
+                    return response.datas
+            else:
+                raise TimeoutError("Timeout : Server did not respond in time")

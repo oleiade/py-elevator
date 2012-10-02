@@ -29,21 +29,24 @@ class Elevator(Client):
     def __exit__(self, type, value, traceback):
         pass
 
-    def Get(self, key):
-        return self.send(self.db_uid, 'GET', [key])
+    def Get(self, key, *args, **kwargs):
+        return self.send(self.db_uid, 'GET', [key], *args, **kwargs)
 
-    def MGet(self, keys, fill_cache=False):
-        return self.send(self.db_uid, 'MGET', [keys, fill_cache])
+    def MGet(self, keys, *args, **kwargs):
+        fill_cache = kwargs.pop('fill_cache', False)
+        return self.send(self.db_uid, 'MGET', [keys, fill_cache], *args, **kwargs)
 
-    def Put(self, key, value):
-        return self.send(self.db_uid, 'PUT', [key, value])
+    def Put(self, key, value, *args, **kwargs):
+        return self.send(self.db_uid, 'PUT', [key, value], *args, **kwargs)
 
-    def Delete(self, key):
-        return self.send(self.db_uid, 'DELETE', [key])
+    def Delete(self, key, *args, **kwargs):
+        return self.send(self.db_uid, 'DELETE', [key], *args, **kwargs)
 
-    def Range(self, start=None, limit=None):
-        return self.send(self.db_uid, 'RANGE', [start, limit])
+    def Range(self, *args, **kwargs):
+        start = kwargs.pop('start', None)
+        limit = kwargs.pop('limit', None)
+        return self.send(self.db_uid, 'RANGE', [start, limit], *args, **kwargs)
 
-    def RangeIter(self, key_from=None, key_to=None):
+    def RangeIter(self, key_from=None, key_to=None, *args, **kwargs):
         range_datas = self.Range(key_from, key_to)
         return RangeIter(range_datas)
