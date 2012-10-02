@@ -32,8 +32,8 @@ class Elevator(Client):
     def Get(self, key):
         return self.send(self.db_uid, 'GET', [key])
 
-    def MGet(self, keys):
-        return self.send(self.db_uid, 'MGET', [keys])
+    def MGet(self, keys, fill_cache=False):
+        return self.send(self.db_uid, 'MGET', [keys, fill_cache])
 
     def Put(self, key, value):
         return self.send(self.db_uid, 'PUT', [key, value])
