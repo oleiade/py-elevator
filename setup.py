@@ -33,6 +33,7 @@ setup(
 
     packages=[
         'pyelevator',
+        'pyelevator.utils'
     ],
     package_dir={'': '.'},
 
