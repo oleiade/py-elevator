@@ -29,6 +29,7 @@ class Client(object):
         self.context = zmq.Context()
         self.poller = zmq.Poller()
         self.socket = self.context.socket(zmq.XREQ)
+        self.socket.setsockopt(zmq.LINGER, 0)
         self.poller.register(self.socket, zmq.POLLIN)
         self.socket.connect(self.host)
         self.connect(db)
@@ -67,7 +68,8 @@ class Client(object):
 
     def send(self, db_uid, command, arguments, *args, **kwargs):
         timeout = sec_to_ms(kwargs.get('timeout', 0)) or self.timeout
-        self.socket.send_multipart([Request(db_uid=db_uid, command=command, args=arguments)])
+        self.socket.send_multipart([Request(db_uid=db_uid, command=command, args=arguments)],
+                                   flags=zmq.NOBLOCK)
 
         while True:
             socks = dict(self.poller.poll(timeout))
