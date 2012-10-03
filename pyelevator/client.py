@@ -33,7 +33,7 @@ class Elevator(Client):
         return self.send(self.db_uid, 'GET', [key], *args, **kwargs)
 
     def MGet(self, keys, *args, **kwargs):
-        fill_cache = kwargs.pop('fill_cache', False)
+        fill_cache = kwargs.pop('fill_cache', True)
         return self.send(self.db_uid, 'MGET', [keys, fill_cache], *args, **kwargs)
 
     def Put(self, key, value, *args, **kwargs):
