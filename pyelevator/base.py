@@ -6,8 +6,6 @@ from .message import Request, Response
 from .error import ELEVATOR_ERROR, TimeoutError
 from .utils.snippets import sec_to_ms
 
-from elevator.db import DatabaseOptions
-
 
 class Client(object):
     def __init__(self, db=None, *args, **kwargs):
@@ -56,8 +54,8 @@ class Client(object):
     def listdb(self, *args, **kwargs):
         return self.send(self.db_uid, 'DBLIST', {}, *args, **kwargs)
 
-    def createdb(self, key, *args, **kwargs):
-        db_options = kwargs.pop('db_options', DatabaseOptions())
+    def createdb(self, key, db_options=None, *args, **kwargs):
+        db_options = db_options or {}
         return self.send(self.db_uid, 'DBCREATE', [key, db_options], *args, **kwargs)
 
     def dropdb(self, key, *args, **kwargs):
