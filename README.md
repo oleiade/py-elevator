@@ -76,11 +76,14 @@ DatabaseError : "Database does not exist"
                                      
 ```python
 >>> from pyelevator import Elevator
->>> E = Elevator()             # N.B : connected to 'default'
+>>> E = Elevator()                   # N.B : connected to 'default'
 
->>> E.Put('abc', 'cba')
+>>> E.Put('abc', '123')
+>>> E.Put('easy as', 'do re mi')
 >>> E.Get('abc')
-'cba'
+'123'
+>>> E.MGet(['abc', 'easy as', 'you and me'])
+['123', 'do re mi', None]
 >>> E.Delete('abc')
 >>> for i in xrange(10):
 ...     E.Put(str(i), str(i))
@@ -99,7 +102,7 @@ DatabaseError : "Database does not exist"
 ]
 
 # Or key_from, limit params
->>> E.Range('1', 2)            
+>>> E.Slice('1', 2)            
 [['1', '1'],
  ['2', '2'],
 ]
