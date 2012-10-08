@@ -4,7 +4,7 @@ import zmq
 
 from .message import Request, Response
 from .error import ELEVATOR_ERROR, TimeoutError
-from .utils.snippets import sec_to_ms
+from .utils.snippets import sec_to_ms, ms_to_sec
 
 
 class Client(object):
@@ -28,6 +28,7 @@ class Client(object):
         self.poller = zmq.Poller()
         self.socket = self.context.socket(zmq.XREQ)
         self.socket.setsockopt(zmq.LINGER, 0)
+        self.socket.setsockopt(zmq.RCVTIMEO, self.timeout)
         self.poller.register(self.socket, zmq.POLLIN)
         self.socket.connect(self.host)
         self.connect(db)
@@ -39,12 +40,14 @@ class Client(object):
     @property
     def timeout(self):
         if not hasattr(self, '_timeout'):
-            self.timeout = self.sec_to_ms(1)
+            self._timeout = sec_to_ms(1)
         return self._timeout
 
     @timeout.setter
     def timeout(self, value):
-        self._timeout = sec_to_ms(value)
+        value_in_ms = sec_to_ms(value)
+        self._timeout = value_in_ms
+        self.socket.setsockopt(zmq.RCVTIMEO, self._timeout)
 
     def connect(self, db_name, *args, **kwargs):
         self.db_uid = self.send(db_name, 'DBCONNECT', [db_name], *args, **kwargs)
@@ -65,17 +68,24 @@ class Client(object):
         return self.send(self.db_uid, 'DBREPAIR', {}, *args, **kwargs)
 
     def send(self, db_uid, command, arguments, *args, **kwargs):
-        timeout = sec_to_ms(kwargs.get('timeout', 0)) or self.timeout
+        orig_timeout = ms_to_sec(self.timeout)  # Store updates is made from seconds
+        timeout = kwargs.pop('timeout', 0)
+
+        # If a specific timeout value was provided
+        # store the old value, and update current timeout
+        if timeout > 0:
+            self.timeout = timeout
+
         self.socket.send_multipart([Request(db_uid=db_uid, command=command, args=arguments)],
                                    flags=zmq.NOBLOCK)
 
-        while True:
-            socks = dict(self.poller.poll(timeout))
-            if socks:
-                if socks.get(self.socket) == zmq.POLLIN:
-                    response = Response(self.socket.recv_multipart(flags=zmq.NOBLOCK)[0])
-                    if response.error is not None:
-                        raise ELEVATOR_ERROR[response.error['code']](response.error['msg'])
-                    return response.datas
-            else:
-                raise TimeoutError("Timeout : Server did not respond in time")
+        try:
+            response = Response(self.socket.recv_multipart()[0])
+        except zmq.core.error.ZMQError:
+            # Restore original timeout and raise
+            self.timeout = orig_timeout
+            raise TimeoutError("Timeout : Server did not respond in time")
+
+        # Restore original timeout
+        self.timeout = orig_timeout
+        return response.datas
