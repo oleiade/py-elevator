@@ -38,7 +38,6 @@ setup(
     package_dir={'': '.'},
 
     install_requires=[
-        'pyzmq>=2.1.11',
         'msgpack-python'
     ],
 )
