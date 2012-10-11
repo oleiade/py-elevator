@@ -101,6 +101,18 @@ class ElevatorTest(unittest2.TestCase):
         self.assertIsInstance(values, tuple)
         self.assertEqual(values, ('1', None, '3'))
 
+    def test_mget_with_one_existing_key(self):
+        values = self.client.MGet(['1'])
+
+        self.assertIsInstance(values, tuple)
+        self.assertEqual(values, ('1', ))
+
+    def test_mget_with_one_non_existing_key(self):
+        values = self.client.MGet(['touptoupidou'])
+
+        self.assertIsInstance(values, tuple)
+        self.assertEqual(values, (None, ))
+
     def test_put_valid_value(self):
         self.client.Put('abc', '123')
 
