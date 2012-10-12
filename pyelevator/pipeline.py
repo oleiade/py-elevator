@@ -1,7 +1,5 @@
 from __future__ import absolute_import
 
-from collections import deque
-
 from .base import Client
 
 
@@ -10,22 +8,40 @@ class Pipeline(Client):
         super(Pipeline, self).__init__(*args, **kwargs)
         self.queue = []
 
-    def _action_request(self, command, arguments):
+    def _action_request(self, command, *args):
         return {
             'COMMAND': command,
-            'ARGS': arguments,
+            'ARGS': args,
         }
 
-    def add(self, command, arguments):
-        self.queue.append(self._action_request(command, arguments))
+    def Get(self, key, *args, **kwargs):
+        self.queue.append(self._action_request("GET", key))
+
+    def MGet(self, keys, *args, **kwargs):
+        self.queue.append(self.action_request("MGET", keys))
+
+    def Put(self, key, value, *args, **kwargs):
+        self.queue.append(self._action_request("PUT", key, value))
+
+    def Delete(self, key, *args, **kwargs):
+        self.queue.append(self._action_request("DELETE", key))
+
+    def Range(self, start=None, limit=None, *args, **kwargs):
+        self.queue.append(self._action_request("RANGE", start, limit))
+
+    def Slice(self, key_from=None, offset=None, *args, **kwargs):
+        self.queue.append(self._action_request("SLICE", key_from, offset))
+
+    def Batch(self, batch, *args, **kwargs):
+        self.queue.append(self._action_request("BATCH", batch.container))
 
     def pop(self):
-        self.queue.pop()
+        return self.queue.pop()
 
     def clear(self):
         self.queue = []
 
-    def push(self, *args, **kwargs):
-        datas = self.send(self.db_uid, 'PIPELINE', list(self.queue), *args, **kwargs)
-        self.queue = []
+    def execute(self, *args, **kwargs):
+        datas = self.send(self.db_uid, 'PIPELINE', [self.queue, ], *args, **kwargs)
+        self.clear()
         return datas

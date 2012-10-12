@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import zmq
 
+from .constants import FAILURE_STATUS
 from .message import Request, Response
 from .error import ELEVATOR_ERROR, TimeoutError
 from .utils.snippets import sec_to_ms, ms_to_sec
@@ -80,7 +81,7 @@ class Client(object):
         try:
             response = Response(self.socket.recv_multipart()[0])
 
-            if response.error is not None:
+            if response.status == FAILURE_STATUS:
                 raise ELEVATOR_ERROR[response.error['code']](response.error['msg'])
         except zmq.core.error.ZMQError:
             # Restore original timeout and raise

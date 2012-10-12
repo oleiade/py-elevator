@@ -1,7 +1,7 @@
 import msgpack
 import logging
 
-from .constants import FAILURE_STATUS
+from .constants import FAILURE_STATUS, WARNING_STATUS
 
 
 class MessageFormatError(Exception):
@@ -44,8 +44,11 @@ class Response(object):
             return self._datas
 
     def _handle_failures(self):
-        if self.status == FAILURE_STATUS:
+        if self.status in (FAILURE_STATUS, WARNING_STATUS):
             self.error = {
                 'code': int(self.datas[0]),
                 'msg': self.datas[1],
             }
+
+            if self.status == WARNING_STATUS:
+                self._datas = self.datas[2:]
