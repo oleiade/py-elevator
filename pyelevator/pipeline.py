@@ -14,6 +14,12 @@ class Pipeline(Client):
             'ARGS': args,
         }
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        return self.execute()
+
     def Get(self, key, *args, **kwargs):
         self.queue.append(self._action_request("GET", key))
 
