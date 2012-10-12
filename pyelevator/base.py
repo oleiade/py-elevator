@@ -25,11 +25,9 @@ class Client(object):
 
     def _connect(self, db):
         self.context = zmq.Context()
-        self.poller = zmq.Poller()
         self.socket = self.context.socket(zmq.XREQ)
         self.socket.setsockopt(zmq.LINGER, 0)
         self.socket.setsockopt(zmq.RCVTIMEO, self.timeout)
-        self.poller.register(self.socket, zmq.POLLIN)
         self.socket.connect(self.host)
         self.connect(db)
 
