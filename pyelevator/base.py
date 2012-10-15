@@ -81,6 +81,9 @@ class Client(object):
 
         try:
             response = Response(self.socket.recv_multipart()[0])
+
+            if response.error is not None:
+                raise ELEVATOR_ERROR[response.error['code']](response.error['msg'])
         except zmq.core.error.ZMQError:
             # Restore original timeout and raise
             self.timeout = orig_timeout

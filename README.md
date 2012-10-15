@@ -7,7 +7,7 @@ Relying on the zeromq network library and msgpack serialization format, it is ma
 ### Requirements
 
 ```bash
-pyzmq
+pyzmq (built against zmq-3.X)
 msgpack-python
 ```
 

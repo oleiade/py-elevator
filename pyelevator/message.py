@@ -39,7 +39,7 @@ class Response(object):
     @property
     def datas(self):
         if hasattr(self, '_datas') and self._datas is not None:
-            if (len(self._datas) == 1) and not isinstance(self._datas[0], (tuple, list)):
+            if (len(self._datas) == 1):
                 return self._datas[0]
             return self._datas
 
