@@ -87,7 +87,7 @@ class Client(object):
         except zmq.core.error.ZMQError:
             # Restore original timeout and raise
             self.timeout = orig_timeout
-            raise TimeoutError("Timeout : Server did not respond in time")
+            raise TimeoutError("Timeout on %s over %s: Server did not respond in time" % (command, db_uid))
 
         # Restore original timeout
         self.timeout = orig_timeout
