@@ -128,7 +128,7 @@ class ElevatorTest(unittest2.TestCase):
         self.client.Put('abc', '123')
         self.client.Delete('abc', '123')
 
-    def test_range(self):
+    def test_range_of_len_ten(self):
         res = self.client.Range('0', '9')
 
         self.assertIsInstance(res, tuple)
@@ -139,8 +139,28 @@ class ElevatorTest(unittest2.TestCase):
             self.assertIsInstance(r, tuple)
             self.assertEqual(r[0], r[1])
 
-    def test_slice(self):
+    def test_range_of_len_one(self):
+        res = self.client.Range('1', '1')
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 1)
+
+        content = res[0]
+        self.assertIsInstance(content, tuple)
+        self.assertEqual(content, ('1', '1'))
+
+    def test_slice_of_len_ten(self):
         res = self.client.Slice('0', 9)
 
         self.assertIsInstance(res, tuple)
         self.assertEqual(len(res), 9)
+
+    def test_slice_of_len_one(self):
+        res = self.client.Slice('1', 1)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 1)
+
+        content = res[0]
+        self.assertIsInstance(content, tuple)
+        self.assertEqual(content, ('1', '1'))

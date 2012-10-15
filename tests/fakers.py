@@ -52,8 +52,8 @@ class TestDaemon(object):
 
     def start(self):
         self.process = subprocess.Popen(['elevator',
-                                                          '--config', self.conf_file_path,
-                                                          '--port', self.port])
+                                         '--config', self.conf_file_path,
+                                         '--port', self.port])
 
     def stop(self):
         self.process.kill()
