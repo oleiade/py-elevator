@@ -5,6 +5,8 @@ import time
 import shutil
 import uuid
 
+from types import GeneratorType
+
 from nose.tools import raises
 
 from pyelevator import Elevator, WriteBatch
@@ -164,3 +166,25 @@ class ElevatorTest(unittest2.TestCase):
         content = res[0]
         self.assertIsInstance(content, tuple)
         self.assertEqual(content, ('1', '1'))
+
+    def test_rangeiter_of_len_ten(self):
+        it = self.client.RangeIter(key_from='0', key_to='9')
+
+        content = list(it)
+        self.assertIsInstance(content, list)
+        self.assertEqual(len(content), 10)
+
+        for elem in content:
+            self.assertIsInstance(elem, tuple)
+            self.assertEqual(len(elem), 2)
+
+    def test_rangeiter_of_len_one(self):
+        it = self.client.RangeIter(key_from='1', key_to='1')
+
+        content = list(it)
+        self.assertIsInstance(content, list)
+        self.assertEqual(len(content), 1)
+
+        datas = content[0]
+        self.assertIsInstance(datas, tuple)
+        self.assertEqual(len(datas), 2)
