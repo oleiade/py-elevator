@@ -30,16 +30,19 @@ class Elevator(Client):
         pass
 
     def Get(self, key, *args, **kwargs):
-        return self.send(self.db_uid, 'GET', [key], *args, **kwargs)
+        datas = self.send(self.db_uid, 'GET', [key], *args, **kwargs)
+        return datas[0]
 
     def MGet(self, keys, *args, **kwargs):
         return self.send(self.db_uid, 'MGET', [keys], *args, **kwargs)
 
     def Put(self, key, value, *args, **kwargs):
-        return self.send(self.db_uid, 'PUT', [key, value], *args, **kwargs)
+        self.send(self.db_uid, 'PUT', [key, value], *args, **kwargs)
+        return
 
     def Delete(self, key, *args, **kwargs):
-        return self.send(self.db_uid, 'DELETE', [key], *args, **kwargs)
+        self.send(self.db_uid, 'DELETE', [key], *args, **kwargs)
+        return
 
     def Range(self, start=None, limit=None, *args, **kwargs):
         return self.send(self.db_uid, 'RANGE', [start, limit], *args, **kwargs)

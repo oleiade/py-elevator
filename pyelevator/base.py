@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import zmq
 
+from .constants import FAILURE_STATUS
 from .message import Request, Response
 from .error import ELEVATOR_ERROR, TimeoutError
 from .utils.snippets import sec_to_ms, ms_to_sec
@@ -50,7 +51,8 @@ class Client(object):
         self.socket.setsockopt(zmq.RCVTIMEO, self._timeout)
 
     def connect(self, db_name, *args, **kwargs):
-        self.db_uid = self.send(db_name, 'DBCONNECT', [db_name], *args, **kwargs)
+        datas = self.send(db_name, 'DBCONNECT', [db_name], *args, **kwargs)
+        self.db_uid = datas[0]
         self.db_name = db_name
         return
 
@@ -59,13 +61,15 @@ class Client(object):
 
     def createdb(self, key, db_options=None, *args, **kwargs):
         db_options = db_options or {}
-        return self.send(self.db_uid, 'DBCREATE', [key, db_options], *args, **kwargs)
+        self.send(self.db_uid, 'DBCREATE', [key, db_options], *args, **kwargs)
+        return
 
     def dropdb(self, key, *args, **kwargs):
         return self.send(self.db_uid, 'DBDROP', [key], *args, **kwargs)
 
     def repairdb(self, *args, **kwargs):
-        return self.send(self.db_uid, 'DBREPAIR', {}, *args, **kwargs)
+        self.send(self.db_uid, 'DBREPAIR', {}, *args, **kwargs)
+        return
 
     def send(self, db_uid, command, arguments, *args, **kwargs):
         orig_timeout = ms_to_sec(self.timeout)  # Store updates is made from seconds
@@ -82,8 +86,8 @@ class Client(object):
         try:
             response = Response(self.socket.recv_multipart()[0])
 
-            if response.error is not None:
-                raise ELEVATOR_ERROR[response.error['code']](response.error['msg'])
+            if response.meta['status'] == FAILURE_STATUS:
+                raise ELEVATOR_ERROR[response.meta['err_code']](response.meta['err_msg'])
         except zmq.core.error.ZMQError:
             # Restore original timeout and raise
             self.timeout = orig_timeout
