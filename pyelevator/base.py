@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import zmq
 
 from .constants import FAILURE_STATUS
-from .message import Request, Response
+from .message import Request, Response, ResponseHeader
 from .error import ELEVATOR_ERROR, TimeoutError
 from .utils.snippets import sec_to_ms, ms_to_sec
 
@@ -84,10 +84,12 @@ class Client(object):
                                    flags=zmq.NOBLOCK)
 
         try:
-            response = Response(self.socket.recv_multipart()[0])
+            raw_header, raw_response = self.socket.recv_multipart()
+            header = ResponseHeader(raw_header)
+            response = Response(raw_response)
 
-            if response.meta['status'] == FAILURE_STATUS:
-                raise ELEVATOR_ERROR[response.meta['err_code']](response.meta['err_msg'])
+            if header.status == FAILURE_STATUS:
+                raise ELEVATOR_ERROR[header.err_code](header.err_msg)
         except zmq.core.error.ZMQError:
             # Restore original timeout and raise
             self.timeout = orig_timeout
@@ -95,4 +97,5 @@ class Client(object):
 
         # Restore original timeout
         self.timeout = orig_timeout
+
         return response.datas

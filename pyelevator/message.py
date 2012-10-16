@@ -27,9 +27,22 @@ class Response(object):
         message = msgpack.unpackb(raw_message)
 
         try:
-            self.meta = message['meta']
             self.datas = message['datas']
         except KeyError:
             errors_logger.exception("Invalid response message : %s" %
                                     message)
             raise MessageFormatError("Invalid response message")
+
+
+class ResponseHeader(object):
+    def __init__(self, raw_header):
+        header = msgpack.unpackb(raw_header)
+
+        try:
+            self.status = header['status']
+            self.err_code = header['err_code']
+            self.err_msg = header['err_msg']
+        except KeyError:
+            errors_logger.exception("Invalid response header : %s" %
+                                    header)
+            raise MessageFormatError("Invalid response header")
