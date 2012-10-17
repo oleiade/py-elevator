@@ -74,19 +74,23 @@ class Client(object):
     def send(self, db_uid, command, arguments, *args, **kwargs):
         orig_timeout = ms_to_sec(self.timeout)  # Store updates is made from seconds
         timeout = kwargs.pop('timeout', 0)
+        compression = kwargs.pop('compression', False)
 
         # If a specific timeout value was provided
         # store the old value, and update current timeout
         if timeout > 0:
             self.timeout = timeout
 
-        self.socket.send_multipart([Request(db_uid=db_uid, command=command, args=arguments)],
+        self.socket.send_multipart([Request(db_uid=db_uid,
+                                            command=command,
+                                            args=arguments,
+                                            meta={'compression': compression})],
                                    flags=zmq.NOBLOCK)
 
         try:
             raw_header, raw_response = self.socket.recv_multipart()
             header = ResponseHeader(raw_header)
-            response = Response(raw_response)
+            response = Response(raw_response, compression=compression)
 
             if header.status == FAILURE_STATUS:
                 raise ELEVATOR_ERROR[header.err_code](header.err_msg)

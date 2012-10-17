@@ -1,5 +1,6 @@
 import msgpack
 import logging
+import lz4
 
 
 errors_logger = logging.getLogger("errors_logger")
@@ -13,7 +14,7 @@ class Request(object):
     """Handler objects for frontend->backend objects messages"""
     def __new__(cls, *args, **kwargs):
         content = {
-            'meta': {},
+            'meta': kwargs.pop('meta', {'compression': False}),
             'uid': kwargs.pop('db_uid'),
             'cmd': kwargs.pop('command'),
             'args': kwargs.pop('args'),
@@ -23,7 +24,9 @@ class Request(object):
 
 
 class Response(object):
-    def __init__(self, raw_message):
+    def __init__(self, raw_message, *args, **kwargs):
+        compression = kwargs.pop('compression', False)
+        raw_message = lz4.loads(raw_message) if compression else raw_message
         message = msgpack.unpackb(raw_message)
 
         try:
@@ -39,10 +42,13 @@ class ResponseHeader(object):
         header = msgpack.unpackb(raw_header)
 
         try:
-            self.status = header['status']
-            self.err_code = header['err_code']
-            self.err_msg = header['err_msg']
+            self.status = header.pop('status')
+            self.err_code = header.pop('err_code')
+            self.err_msg = header.pop('err_msg')
         except KeyError:
             errors_logger.exception("Invalid response header : %s" %
                                     header)
             raise MessageFormatError("Invalid response header")
+
+        for key, value in header.iteritems():
+            setattr(self, key, value)
