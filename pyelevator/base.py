@@ -11,12 +11,11 @@ from .utils.snippets import sec_to_ms, ms_to_sec
 class Client(object):
     def __init__(self, db=None, *args, **kwargs):
         self.protocol = kwargs.pop('protocol', 'tcp')
-        self.bind = kwargs.pop('bind', '127.0.0.1')
-        self.port = kwargs.pop('port', '4141')
         self._timeout = sec_to_ms(kwargs.pop('timeout', 1))
+        self.endpoint = kwargs.pop('endpoint', '127.0.0.1:4141')
 
         self._db_uid = None
-        self.host = "%s://%s:%s" % (self.protocol, self.bind, self.port)
+        self.host = "%s://%s" % (self.protocol, self.endpoint)
 
         db = 'default' if db is None else db
         self._connect(db=db)
@@ -84,8 +83,7 @@ class Client(object):
         self.socket.send_multipart([Request(db_uid=db_uid,
                                             command=command,
                                             args=arguments,
-                                            meta={'compression': compression})],
-                                   flags=zmq.NOBLOCK)
+                                            meta={'compression': compression})],)
 
         try:
             raw_header, raw_response = self.socket.recv_multipart()
