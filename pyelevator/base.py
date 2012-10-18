@@ -50,9 +50,17 @@ class Client(object):
         self.socket.setsockopt(zmq.RCVTIMEO, self._timeout)
 
     def connect(self, db_name, *args, **kwargs):
-        datas = self.send(db_name, 'DBCONNECT', [db_name], *args, **kwargs)
+        datas = self.send(None, 'DBCONNECT', [db_name], *args, **kwargs)
         self.db_uid = datas[0]
         self.db_name = db_name
+        return
+
+    def mount(self, db_name, *args, **kwargs):
+        self.send(None, 'DBMOUNT', [db_name], *args, **kwargs)
+        return
+
+    def unmount(self, db_name, *args, **kwargs):
+        self.send(None, 'DBUMOUNT', [db_name], *args, **kwargs)
         return
 
     def listdb(self, *args, **kwargs):

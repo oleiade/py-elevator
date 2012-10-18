@@ -15,7 +15,7 @@ class Request(object):
     def __new__(cls, *args, **kwargs):
         content = {
             'meta': kwargs.pop('meta', {'compression': False}),
-            'uid': kwargs.pop('db_uid'),
+            'uid': kwargs.get('db_uid'),  # uid can eventually be None
             'cmd': kwargs.pop('command'),
             'args': kwargs.pop('args'),
         }
