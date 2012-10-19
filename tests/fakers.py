@@ -12,6 +12,7 @@ def gen_test_conf():
             "pidfile": tempfile.mkstemp(suffix=".pid", dir='/tmp')[1],
             "databases_storage_path": tempfile.mkdtemp(dir='/tmp'),  # Will be randomly set later
             "database_store": tempfile.mkstemp(suffix=".json", dir="/tmp")[1],
+            "bind": '127.0.0.1',
             "port": str(random.randint(4142, 60000)),
             "activity_log": tempfile.mkstemp(suffix=".log", dir="/tmp")[1],
             "errors_log": tempfile.mkstemp(suffix="_errors.log", dir="/tmp")[1],
@@ -32,6 +33,7 @@ class TestDaemon(object):
         self.process = None
 
         self.port = self.config.get('global', 'port')
+        self.bind = self.config.get('global', 'bind')
 
     def __del__(self):
         for key, value in self.config.items('global'):
@@ -53,7 +55,10 @@ class TestDaemon(object):
     def start(self):
         self.process = subprocess.Popen(['elevator',
                                          '--config', self.conf_file_path,
-                                         '--port', self.port])
+                                         '--bind', self.bind,
+                                         '--port', self.port,
+                                         '--log-level', 'CRITICAL',
+                                         ])
 
     def stop(self):
         self.process.kill()

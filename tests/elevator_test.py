@@ -20,7 +20,8 @@ class ElevatorTest(unittest2.TestCase):
     def setUp(self):
         self.elevator_daemon = TestDaemon()
         self.elevator_daemon.start()
-        self.client = Elevator(port=self.elevator_daemon.port)
+        self.endpoint = '{0}:{1}'.format(self.elevator_daemon.bind, self.elevator_daemon.port)
+        self.client = Elevator(endpoint=self.endpoint)
         self._bootstrap_db()
 
     def tearDown(self):
@@ -29,7 +30,7 @@ class ElevatorTest(unittest2.TestCase):
         del self.client
 
     def _bootstrap_db(self):
-        batch = WriteBatch(port=self.elevator_daemon.port)
+        batch = WriteBatch(endpoint=self.endpoint)
 
         for x in xrange(10):
             batch.Put(str(x), str(x))

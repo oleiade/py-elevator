@@ -10,8 +10,9 @@ class WriteBatchElevator(unittest2.TestCase):
     def setUp(self):
         self.elevator_daemon = TestDaemon()
         self.elevator_daemon.start()
-        self.client = Elevator(port=self.elevator_daemon.port)
-        self.batch = WriteBatch(port=self.elevator_daemon.port)
+        self.endpoint = '{0}:{1}'.format(self.elevator_daemon.bind, self.elevator_daemon.port)
+        self.client = Elevator(endpoint=self.endpoint)
+        self.batch = WriteBatch(endpoint=self.endpoint)
 
     def tearDown(self):
         self.elevator_daemon.stop()
