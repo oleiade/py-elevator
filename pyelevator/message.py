@@ -13,12 +13,15 @@ class MessageFormatError(Exception):
 class Request(object):
     """Handler objects for frontend->backend objects messages"""
     def __new__(cls, *args, **kwargs):
-        content = {
-            'meta': kwargs.pop('meta', {'compression': False}),
-            'uid': kwargs.get('db_uid'),  # uid can eventually be None
-            'cmd': kwargs.pop('command'),
-            'args': kwargs.pop('args'),
-        }
+        try:
+            content = {
+                'meta': kwargs.pop('meta', {'compression': False}),
+                'uid': kwargs.get('db_uid'),  # uid can eventually be None
+                'cmd': kwargs.pop('command'),
+                'args': kwargs.pop('args'),
+            }
+        except KeyError:
+            raise MessageFormatError("Invalid request format : %s" % str(kwargs))
 
         return msgpack.packb(content)
 
