@@ -1,7 +1,9 @@
 import msgpack
 import logging
+import lz4
 
-from .constants import FAILURE_STATUS
+
+errors_logger = logging.getLogger("errors_logger")
 
 
 class MessageFormatError(Exception):
@@ -11,41 +13,45 @@ class MessageFormatError(Exception):
 class Request(object):
     """Handler objects for frontend->backend objects messages"""
     def __new__(cls, *args, **kwargs):
-        content = {
-            'DB_UID': kwargs.pop('db_uid'),
-            'COMMAND': kwargs.pop('command'),
-            'ARGS': kwargs.pop('args'),
-        }
+        try:
+            content = {
+                'meta': kwargs.pop('meta', {'compression': False}),
+                'uid': kwargs.get('db_uid'),  # uid can eventually be None
+                'cmd': kwargs.pop('command'),
+                'args': kwargs.pop('args'),
+            }
+        except KeyError:
+            raise MessageFormatError("Invalid request format : %s" % str(kwargs))
 
         return msgpack.packb(content)
 
 
 class Response(object):
-    def __init__(self, raw_message):
-        self.error = None
-        errors_logger = logging.getLogger("errors_logger")
+    def __init__(self, raw_message, *args, **kwargs):
+        compression = kwargs.pop('compression', False)
+        raw_message = lz4.loads(raw_message) if compression else raw_message
         message = msgpack.unpackb(raw_message)
 
         try:
-            self.status = message.pop('STATUS')
-            self._datas = message.pop('DATAS')
+            self.datas = message['datas']
         except KeyError:
             errors_logger.exception("Invalid response message : %s" %
                                     message)
             raise MessageFormatError("Invalid response message")
 
-        self._handle_failures()
 
-    @property
-    def datas(self):
-        if hasattr(self, '_datas') and self._datas is not None:
-            if (len(self._datas) == 1):
-                return self._datas[0]
-            return self._datas
+class ResponseHeader(object):
+    def __init__(self, raw_header):
+        header = msgpack.unpackb(raw_header)
 
-    def _handle_failures(self):
-        if self.status == FAILURE_STATUS:
-            self.error = {
-                'code': int(self.datas[0]),
-                'msg': self.datas[1],
-            }
+        try:
+            self.status = header.pop('status')
+            self.err_code = header.pop('err_code')
+            self.err_msg = header.pop('err_msg')
+        except KeyError:
+            errors_logger.exception("Invalid response header : %s" %
+                                    header)
+            raise MessageFormatError("Invalid response header")
+
+        for key, value in header.iteritems():
+            setattr(self, key, value)

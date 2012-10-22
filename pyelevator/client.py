@@ -29,21 +29,28 @@ class Elevator(Client):
     def __exit__(self, type, value, traceback):
         pass
 
-    def Get(self, key):
-        return self.send(self.db_uid, 'GET', [key])
+    def Get(self, key, *args, **kwargs):
+        datas = self.send(self.db_uid, 'GET', [key], *args, **kwargs)
+        return datas[0]
 
-    def MGet(self, keys):
-        return self.send(self.db_uid, 'MGET', [keys])
+    def MGet(self, keys, *args, **kwargs):
+        return self.send(self.db_uid, 'MGET', [keys], *args, **kwargs)
 
-    def Put(self, key, value):
-        return self.send(self.db_uid, 'PUT', [key, value])
+    def Put(self, key, value, *args, **kwargs):
+        self.send(self.db_uid, 'PUT', [key, value], *args, **kwargs)
+        return
 
-    def Delete(self, key):
-        return self.send(self.db_uid, 'DELETE', [key])
+    def Delete(self, key, *args, **kwargs):
+        self.send(self.db_uid, 'DELETE', [key], *args, **kwargs)
+        return
 
-    def Range(self, start=None, limit=None):
-        return self.send(self.db_uid, 'RANGE', [start, limit])
+    def Range(self, start=None, limit=None, *args, **kwargs):
+        return self.send(self.db_uid, 'RANGE', [start, limit], *args, **kwargs)
 
-    def RangeIter(self, key_from=None, key_to=None):
-        range_datas = self.Range(key_from, key_to)
+    def Slice(self, key_from=None, offset=None, *args, **kwargs):
+        return self.send(self.db_uid, 'SLICE', [key_from, offset], *args, **kwargs)
+
+    def RangeIter(self, key_from=None, key_to=None, *args, **kwargs):
+        cmd = self.Range if isinstance(key_to, str) else self.Slice
+        range_datas = cmd(key_from, key_to)
         return RangeIter(range_datas)

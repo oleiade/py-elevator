@@ -5,8 +5,14 @@ from .constants import *
 class DatabaseError(Exception):
     pass
 
+
 class SignalError(Exception):
     pass
+
+
+class TimeoutError(Exception):
+    pass
+
 
 ELEVATOR_ERROR = {
     TYPE_ERROR: TypeError,
