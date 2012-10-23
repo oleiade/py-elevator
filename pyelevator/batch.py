@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2012 theo crevon
+#
+# See the file LICENSE for copying permission.
+
 from __future__ import absolute_import
 
 from .constants import SIGNAL_BATCH_PUT, SIGNAL_BATCH_DELETE
@@ -29,6 +35,9 @@ class WriteBatch(Client):
         self.container.append([SIGNAL_BATCH_DELETE, key])
 
     def Write(self, *args, **kwargs):
+        if self.status == self.STATUSES.OFFLINE:
+            self.connect()
+
         self.send(self.db_uid, 'BATCH', [self.container], *args, **kwargs)
         self.container = []
         return

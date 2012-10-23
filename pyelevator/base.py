@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2012 theo crevon
+#
+# See the file LICENSE for copying permission.
+
 from __future__ import absolute_import
 
 import zmq
@@ -6,34 +12,49 @@ from .constants import FAILURE_STATUS
 from .message import Request, Response, ResponseHeader
 from .error import ELEVATOR_ERROR, TimeoutError
 from .utils.snippets import sec_to_ms, ms_to_sec
+from .utils.patterns import enum
 
 
 class Client(object):
-    def __init__(self, db=None, *args, **kwargs):
-        self.protocol = kwargs.pop('protocol', 'tcp')
-        self._timeout = sec_to_ms(kwargs.pop('timeout', 1))
-        self.endpoint = kwargs.pop('endpoint', '127.0.0.1:4141')
+    STATUSES = enum('ONLINE', 'OFFLINE')
 
-        self._db_uid = None
+    def __init__(self, db_name=None, *args, **kwargs):
+        self.protocol = kwargs.pop('protocol', 'tcp')
+        self.endpoint = kwargs.pop('endpoint', '127.0.0.1:4141')
         self.host = "%s://%s" % (self.protocol, self.endpoint)
 
-        db = 'default' if db is None else db
-        self._connect(db=db)
+        self.context = None
+        self.socket = None
+
+        self._timeout = sec_to_ms(kwargs.pop('timeout', 1))
+        self._status = self.STATUSES.OFFLINE
+        self._db_uid = None
+
+        if kwargs.pop('auto_connect', True) is True:
+            self.connect(db_name)
 
     def __del__(self):
-        self._close()
+        self.teardown_socket()
 
-    def _connect(self, db):
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, status):
+        if status in [self.STATUSES.ONLINE, self.STATUSES.OFFLINE]:
+            self._status = status
+        else:
+            raise TypeError("Provided status should be a Pipeline.STATUSES")
+
+    def setup_socket(self):
         self.context = zmq.Context()
-        self.poller = zmq.Poller()
         self.socket = self.context.socket(zmq.XREQ)
         self.socket.setsockopt(zmq.LINGER, 0)
         self.socket.setsockopt(zmq.RCVTIMEO, self.timeout)
-        self.poller.register(self.socket, zmq.POLLIN)
         self.socket.connect(self.host)
-        self.connect(db)
 
-    def _close(self):
+    def teardown_socket(self):
         self.socket.close()
         self.context.term()
 
@@ -49,11 +70,19 @@ class Client(object):
         self._timeout = value_in_ms
         self.socket.setsockopt(zmq.RCVTIMEO, self._timeout)
 
-    def connect(self, db_name, *args, **kwargs):
-        datas = self.send(None, 'DBCONNECT', [db_name], *args, **kwargs)
-        self.db_uid = datas[0]
+    def connect(self, db_name=None, *args, **kwargs):
+        if self.status == self.STATUSES.OFFLINE:
+            self.setup_socket()
+            self.status = self.STATUSES.ONLINE
+
+        db_name = 'default' if db_name is None else db_name
+        self.db_uid = self.send(None, 'DBCONNECT', [db_name], *args, **kwargs)[0]
         self.db_name = db_name
         return
+
+    def disconnect(self, *args, **kwargs):
+        self.status == self.STATUSES.OFFLINE
+        self.teardown_socket()
 
     def mount(self, db_name, *args, **kwargs):
         self.send(None, 'DBMOUNT', [db_name], *args, **kwargs)
