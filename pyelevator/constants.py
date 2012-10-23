@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2012 theo crevon
+#
+# See the file LICENSE for copying permission.
+
 # Status codes
 SUCCESS_STATUS = 1
 FAILURE_STATUS = -1
