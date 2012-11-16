@@ -189,3 +189,13 @@ class ElevatorTest(unittest2.TestCase):
         datas = content[0]
         self.assertIsInstance(datas, tuple)
         self.assertEqual(len(datas), 2)
+
+    def test_spawn_writebatch_from_elevator(self):
+        batch = self.client.WriteBatch()
+
+        self.assertIsInstance(batch, WriteBatch)
+        self.assertEqual(batch.endpoint, self.client.endpoint)
+        self.assertEqual(batch.protocol, self.client.protocol)
+        self.assertEqual(batch.db_uid, self.client.db_uid)
+        self.assertEqual(batch.db_name, self.client.db_name)
+        self.assertTrue(batch.status == WriteBatch.STATUSES.ONLINE)

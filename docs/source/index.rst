@@ -138,6 +138,10 @@ Interact with a database
     >>>
     '1'
 
+    # Elevator objects can also spawn WriteBatches objects,
+    # inheriting it's parent Elevator object configuration.
+    >>> batch = E.WriteBatch()
+
 
 Batches
 =========

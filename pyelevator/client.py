@@ -5,6 +5,7 @@
 # See the file LICENSE for copying permission.
 
 from .base import Client
+from .batch import WriteBatch
 
 
 class RangeIter(object):
@@ -60,3 +61,11 @@ class Elevator(Client):
         cmd = self.Range if isinstance(key_to, str) else self.Slice
         range_datas = cmd(key_from, key_to)
         return RangeIter(range_datas)
+
+    def WriteBatch(self):
+        batch = WriteBatch(protocol=self.protocol,
+                           endpoint=self.endpoint,
+                           auto_connect=False)
+        batch.connect(self.db_name)
+
+        return batch
