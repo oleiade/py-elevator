@@ -14,7 +14,7 @@ with open(os.path.join(root, 'README.md')) as f:
 setup(
     name='py-elevator',
     version=version,
-    license='BSD',
+    license='MIT',
 
     description = 'Python client for key/value database Elevator',
     long_description=README,
@@ -24,7 +24,7 @@ setup(
     url='http://github.com/oleiade/py-elevator',
 
     classifiers=[
-        'Development Status :: 0.0.1',
+        'Development Status :: 0.4',
         'Environment :: Unix-like Systems',
         'Programming Language :: Python',
         'Operating System :: Unix-like',
@@ -33,7 +33,7 @@ setup(
 
     packages=[
         'pyelevator',
-        'pyelevator.utils'
+        'pyelevator.utils',
     ],
     package_dir={'': '.'},
 
