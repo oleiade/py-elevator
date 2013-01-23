@@ -33,7 +33,7 @@ class ElevatorTest(unittest2.TestCase):
         batch = WriteBatch(endpoint=self.endpoint)
 
         for x in xrange(10):
-            batch.Put(str(x), str(x))
+            batch.Put(str(x), str(x + 10))
 
         batch.Write()
 
@@ -86,7 +86,7 @@ class ElevatorTest(unittest2.TestCase):
         value = self.client.Get('1')
 
         self.assertIsInstance(value, str)  # No error (tuple) returned
-        self.assertEqual(value, '1')
+        self.assertEqual(value, '11')
 
     @raises(KeyError)
     def test_get_with_invalid_key(self):
@@ -96,19 +96,19 @@ class ElevatorTest(unittest2.TestCase):
         values = self.client.MGet(['1', '2', '3'])
 
         self.assertIsInstance(values, tuple)
-        self.assertEqual(values, ('1', '2', '3'))
+        self.assertEqual(values, ('11', '12', '13'))
 
     def test_mget_with_invalid_keys(self):
         values = self.client.MGet(['1', 'abc', '3'])
 
         self.assertIsInstance(values, tuple)
-        self.assertEqual(values, ('1', None, '3'))
+        self.assertEqual(values, ('11', None, '13'))
 
     def test_mget_with_one_existing_key(self):
         values = self.client.MGet(['1'])
 
         self.assertIsInstance(values, tuple)
-        self.assertEqual(values, ('1', ))
+        self.assertEqual(values, ('11', ))
 
     def test_mget_with_one_non_existing_key(self):
         values = self.client.MGet(['touptoupidou'])
@@ -140,7 +140,8 @@ class ElevatorTest(unittest2.TestCase):
         for r in res:
             self.assertIsNotNone(r)
             self.assertIsInstance(r, tuple)
-            self.assertEqual(r[0], r[1])
+            # boostraped values are from 10 to 19
+            self.assertEqual(int(r[1]), int(r[0]) + 10)
 
     def test_range_of_len_ten_without_keys(self):
         res = self.client.Range('0', '9', include_key=False)
@@ -150,8 +151,9 @@ class ElevatorTest(unittest2.TestCase):
 
         for r in res:
             self.assertIsNotNone(r)
-            self.assertGreaterEqual(int(r), 0)
-            self.assertLessEqual(int(r), 9)
+            # boostraped values are from 10 to 19
+            self.assertGreaterEqual(int(r), 10)
+            self.assertLessEqual(int(r), 19)
 
     def test_range_of_len_ten_without_values(self):
         res = self.client.Range('0', '9', include_value=False)
@@ -172,14 +174,14 @@ class ElevatorTest(unittest2.TestCase):
 
         content = res[0]
         self.assertIsInstance(content, tuple)
-        self.assertEqual(content, ('1', '1'))
+        self.assertEqual(content, ('1', '11'))
 
     def test_range_of_len_one_without_keys(self):
         res = self.client.Range('1', '1', include_key=False)
 
         self.assertIsInstance(res, tuple)
         self.assertEqual(len(res), 1)
-        self.assertEqual(res, ('1',))
+        self.assertEqual(res, ('11',))
 
     def test_range_of_len_one_without_values(self):
         res = self.client.Range('1', '1', include_value=False)
@@ -197,7 +199,8 @@ class ElevatorTest(unittest2.TestCase):
         for r in res:
             self.assertIsNotNone(r)
             self.assertIsInstance(r, tuple)
-            self.assertEqual(r[0], r[1])
+            # boostraped values are from 10 to 19
+            self.assertEqual(int(r[1]), int(r[0]) + 10)
 
     def test_slice_of_len_ten_without_keys(self):
         res = self.client.Slice('0', 9, include_key=False)
@@ -208,7 +211,8 @@ class ElevatorTest(unittest2.TestCase):
         for r in res:
             self.assertIsNotNone(r)
             self.assertGreaterEqual(int(r), 0)
-            self.assertLessEqual(int(r), 9)
+            # boostraped values are from 10 to 19
+            self.assertLessEqual(int(r), 19)
 
     def test_slice_of_len_ten_without_values(self):
         res = self.client.Slice('0', 9, include_value=False)
@@ -229,14 +233,14 @@ class ElevatorTest(unittest2.TestCase):
 
         content = res[0]
         self.assertIsInstance(content, tuple)
-        self.assertEqual(content, ('1', '1'))
+        self.assertEqual(content, ('1', '11'))
 
     def test_slice_of_len_one_without_keys(self):
         res = self.client.Slice('1', 1, include_key=False)
 
         self.assertIsInstance(res, tuple)
         self.assertEqual(len(res), 1)
-        self.assertEqual(res, ('1',))
+        self.assertEqual(res, ('11',))
 
     def test_slice_of_len_one_without_values(self):
         res = self.client.Slice('1', 1, include_value=False)
