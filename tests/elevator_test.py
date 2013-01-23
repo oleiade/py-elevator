@@ -260,6 +260,32 @@ class ElevatorTest(unittest2.TestCase):
             self.assertIsInstance(elem, tuple)
             self.assertEqual(len(elem), 2)
 
+    def test_rangeiter_of_len_ten_without_keys(self):
+        it = self.client.RangeIter(key_from='0', key_to='9', include_key=False)
+
+        content = list(it)
+        self.assertIsInstance(content, list)
+        self.assertEqual(len(content), 10)
+
+        for elem in content:
+            self.assertIsInstance(elem, str)
+            # Bootstraped values are between 10 and 19
+            self.assertGreaterEqual(int(elem), 10)
+            self.assertLessEqual(int(elem), 19)
+
+    def test_rangeiter_of_len_ten_without_values(self):
+        it = self.client.RangeIter(key_from='0', key_to='9', include_value=False)
+
+        content = list(it)
+        self.assertIsInstance(content, list)
+        self.assertEqual(len(content), 10)
+
+        for elem in content:
+            self.assertIsInstance(elem, str)
+            # Bootstrap keys are between 0 and 9
+            self.assertGreaterEqual(int(elem), 0)
+            self.assertLessEqual(int(elem), 9)
+
     def test_rangeiter_of_len_one(self):
         it = self.client.RangeIter(key_from='1', key_to='1')
 
@@ -270,6 +296,28 @@ class ElevatorTest(unittest2.TestCase):
         datas = content[0]
         self.assertIsInstance(datas, tuple)
         self.assertEqual(len(datas), 2)
+
+    def test_rangeiter_of_len_one_without_key(self):
+        it = self.client.RangeIter(key_from='1', key_to='1', include_key=False)
+
+        content = list(it)
+        self.assertIsInstance(content, list)
+        self.assertEqual(len(content), 1)
+
+        datas = content[0]
+        self.assertIsInstance(datas, str)
+        self.assertEqual(datas, '11')
+
+    def test_rangeiter_of_len_ten_without_value(self):
+        it = self.client.RangeIter(key_from='1', key_to='1', include_value=False)
+
+        content = list(it)
+        self.assertIsInstance(content, list)
+        self.assertEqual(len(content), 1)
+
+        datas = content[0]
+        self.assertIsInstance(datas, str)
+        self.assertEqual(datas, '1')
 
     def test_spawn_writebatch_from_elevator(self):
         batch = self.client.WriteBatch()
