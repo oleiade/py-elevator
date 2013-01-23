@@ -52,10 +52,18 @@ class Elevator(Client):
         return
 
     def Range(self, start=None, limit=None, *args, **kwargs):
-        return self.send(self.db_uid, 'RANGE', [start, limit], *args, **kwargs)
+        include_value = kwargs.pop('include_value', True)
+        include_key = kwargs.pop('include_key', True)
+        params = [start, limit, include_key, include_value]
+
+        return self.send(self.db_uid, 'RANGE', params, *args, **kwargs)
 
     def Slice(self, key_from=None, offset=None, *args, **kwargs):
-        return self.send(self.db_uid, 'SLICE', [key_from, offset], *args, **kwargs)
+        include_value = kwargs.pop('include_value', True)
+        include_key = kwargs.pop('include_key', True)
+        params = [key_from, offset, include_key, include_value]
+
+        return self.send(self.db_uid, 'SLICE', params, *args, **kwargs)
 
     def RangeIter(self, key_from=None, key_to=None, *args, **kwargs):
         cmd = self.Range if isinstance(key_to, str) else self.Slice

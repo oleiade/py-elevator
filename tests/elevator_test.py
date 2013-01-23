@@ -1,5 +1,5 @@
 import unittest2
-import leveldb
+import plyvel
 import os
 import time
 import shutil
@@ -50,9 +50,9 @@ class ElevatorTest(unittest2.TestCase):
 
     def test_createdb_fs_existing_db(self):
         tmp_fs_db = os.path.join("/tmp", str(uuid.uuid4()))
-        db = leveldb.LevelDB(tmp_fs_db)
-        db.Put('abc', '123')
-        db.Put('easy as', 'do re mi')
+        db = plyvel.DB(tmp_fs_db, create_if_missing=True)
+        db.put('abc', '123')
+        db.put('easy as', 'do re mi')
         del db
 
         self.client.createdb(tmp_fs_db)
@@ -76,9 +76,9 @@ class ElevatorTest(unittest2.TestCase):
         self.elevator_daemon.stop()
         time.sleep(2)
 
-        db = leveldb.LevelDB(tmp_fs_db)
-        self.assertEqual(db.Get('abc'), '123')
-        self.assertEqual(db.Get('easy as'), 'do re mi')
+        db = plyvel.DB(tmp_fs_db, create_if_missing=True)
+        self.assertEqual(db.get('abc'), '123')
+        self.assertEqual(db.get('easy as'), 'do re mi')
 
         shutil.rmtree(tmp_fs_db)
 
@@ -142,6 +142,28 @@ class ElevatorTest(unittest2.TestCase):
             self.assertIsInstance(r, tuple)
             self.assertEqual(r[0], r[1])
 
+    def test_range_of_len_ten_without_keys(self):
+        res = self.client.Range('0', '9', include_key=False)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 10)
+
+        for r in res:
+            self.assertIsNotNone(r)
+            self.assertGreaterEqual(int(r), 0)
+            self.assertLessEqual(int(r), 9)
+
+    def test_range_of_len_ten_without_values(self):
+        res = self.client.Range('0', '9', include_value=False)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 10)
+
+        for r in res:
+            self.assertIsNotNone(r)
+            self.assertGreaterEqual(int(r), 0)
+            self.assertLessEqual(int(r), 9)
+
     def test_range_of_len_one(self):
         res = self.client.Range('1', '1')
 
@@ -152,11 +174,52 @@ class ElevatorTest(unittest2.TestCase):
         self.assertIsInstance(content, tuple)
         self.assertEqual(content, ('1', '1'))
 
+    def test_range_of_len_one_without_keys(self):
+        res = self.client.Range('1', '1', include_key=False)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res, ('1',))
+
+    def test_range_of_len_one_without_values(self):
+        res = self.client.Range('1', '1', include_value=False)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res, ('1',))
+
     def test_slice_of_len_ten(self):
         res = self.client.Slice('0', 9)
 
         self.assertIsInstance(res, tuple)
         self.assertEqual(len(res), 9)
+
+        for r in res:
+            self.assertIsNotNone(r)
+            self.assertIsInstance(r, tuple)
+            self.assertEqual(r[0], r[1])
+
+    def test_slice_of_len_ten_without_keys(self):
+        res = self.client.Slice('0', 9, include_key=False)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 9)
+
+        for r in res:
+            self.assertIsNotNone(r)
+            self.assertGreaterEqual(int(r), 0)
+            self.assertLessEqual(int(r), 9)
+
+    def test_slice_of_len_ten_without_values(self):
+        res = self.client.Slice('0', 9, include_value=False)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 9)
+
+        for r in res:
+            self.assertIsNotNone(r)
+            self.assertGreaterEqual(int(r), 0)
+            self.assertLessEqual(int(r), 9)
 
     def test_slice_of_len_one(self):
         res = self.client.Slice('1', 1)
@@ -167,6 +230,20 @@ class ElevatorTest(unittest2.TestCase):
         content = res[0]
         self.assertIsInstance(content, tuple)
         self.assertEqual(content, ('1', '1'))
+
+    def test_slice_of_len_one_without_keys(self):
+        res = self.client.Slice('1', 1, include_key=False)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res, ('1',))
+
+    def test_slice_of_len_one_without_values(self):
+        res = self.client.Slice('1', 1, include_value=False)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res, ('1',))
 
     def test_rangeiter_of_len_ten(self):
         it = self.client.RangeIter(key_from='0', key_to='9')
