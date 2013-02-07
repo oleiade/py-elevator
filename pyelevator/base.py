@@ -30,6 +30,8 @@ class Client(object):
         self._status = self.STATUSES.OFFLINE
         self._db_uid = None
 
+        self.setup_socket()
+
         if kwargs.pop('auto_connect', True) is True:
             self.connect(db_name)
 
@@ -72,7 +74,6 @@ class Client(object):
 
     def connect(self, db_name=None, *args, **kwargs):
         if self.status == self.STATUSES.OFFLINE:
-            self.setup_socket()
             self.status = self.STATUSES.ONLINE
 
         db_name = 'default' if db_name is None else db_name

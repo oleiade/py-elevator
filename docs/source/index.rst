@@ -200,9 +200,9 @@ Database store management
 * ``Get`` : *key*, *value*
 * ``Put`` : *key*, *value*
 * ``Delete`` : *key*
-* ``Range`` : *start*, *limit*
-    limit can whether be a string, and will be considered a stop key then, or an int, and will be considered as an offset.
-* ``RangeIter`` : *key_from*, *key_to*
+* ``Range`` : *key_from*, *key_to*, *include_key=True*, *include_value=True*
+* ``Slice`` : *key_from*, *offset*, *include_key=True*, *include_value=True*
+* ``RangeIter`` : *key_from*, *key_to*, *include_key=True*, *include_value=True*
 * ``MGet`` : *keys*
     Keys should whether be a list or a tuple of strings
     Accepts a specific fill_cache kwarg, which is by default set to False. Defines if the leveldb backend cache should be updated with fetched values or not. When proceeding to "small" and/or repetitive random read, you might want to set this option to True; but for bulk reads on medium and large sets, keep it set to False.

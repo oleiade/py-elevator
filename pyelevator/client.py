@@ -13,8 +13,7 @@ class RangeIter(object):
         self._container = range_datas if self._valid_range(range_datas) else None
 
     def _valid_range(self, range_datas):
-        if range_datas and (not isinstance(range_datas, (list, tuple)) or
-            any(not isinstance(pair, (list, tuple)) for pair in range_datas)):
+        if range_datas and (not isinstance(range_datas, (list, tuple))):
             raise ValueError("Range datas format not recognized")
         return True
 
@@ -66,8 +65,13 @@ class Elevator(Client):
         return self.send(self.db_uid, 'SLICE', params, *args, **kwargs)
 
     def RangeIter(self, key_from=None, key_to=None, *args, **kwargs):
+        include_value = kwargs.pop('include_value', True)
+        include_key = kwargs.pop('include_key', True)
+
         cmd = self.Range if isinstance(key_to, str) else self.Slice
-        range_datas = cmd(key_from, key_to)
+        range_datas = cmd(key_from, key_to,
+                          include_key=include_key, include_value=include_value)
+
         return RangeIter(range_datas)
 
     def WriteBatch(self):
