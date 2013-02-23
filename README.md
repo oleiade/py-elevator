@@ -4,6 +4,8 @@
 Allows async, multithreaded and/or remote acces to a multidb backend.
 Relying on the zeromq network library and msgpack serialization format, it is made to be portable between languages and platforms.
 
+[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=oleiade&url=http://github.com/oleiade/Elevator&title=Elevator&language=&tags=github&category=software)
+
 ### Requirements
 
 ```bash
