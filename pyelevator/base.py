@@ -130,7 +130,7 @@ class Client(object):
 
             if header.status == FAILURE_STATUS:
                 raise ELEVATOR_ERROR[header.err_code](header.err_msg)
-        except zmq.core.error.ZMQError:
+        except zmq.ZMQError:
             # Restore original timeout and raise
             self.timeout = orig_timeout
             raise TimeoutError("Timeout : Server did not respond in time")
