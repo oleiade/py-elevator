@@ -1,4 +1,0 @@
-lz4
-pyzmq
-msgpack-python
--e git://github.com/oleiade/Elevator.git@elevator-0.2e#egg=elevator

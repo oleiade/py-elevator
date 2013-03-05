@@ -39,6 +39,7 @@ setup(
 
     install_requires=[
         'pyzmq==0.13.0',
+        'lz4',
         'msgpack-python'
     ],
 )
