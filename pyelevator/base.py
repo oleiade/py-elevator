@@ -51,7 +51,7 @@ class Client(object):
 
     def setup_socket(self):
         self.context = zmq.Context()
-        self.socket = self.context.socket(zmq.XREQ)
+        self.socket = self.context.socket(zmq.DEALER)
         self.socket.setsockopt(zmq.LINGER, 0)
         self.socket.setsockopt(zmq.RCVTIMEO, self.timeout)
         self.socket.connect(self.host)
