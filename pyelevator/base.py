@@ -19,9 +19,9 @@ class Client(object):
     STATUSES = enum('ONLINE', 'OFFLINE')
 
     def __init__(self, db_name=None, *args, **kwargs):
-        self.protocol = kwargs.pop('protocol', 'tcp')
+        self.transport = kwargs.pop('transport', 'tcp')
         self.endpoint = kwargs.pop('endpoint', '127.0.0.1:4141')
-        self.host = "%s://%s" % (self.protocol, self.endpoint)
+        self.host = "%s://%s" % (self.transport, self.endpoint)
 
         self.context = None
         self.socket = None
