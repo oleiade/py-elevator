@@ -42,7 +42,7 @@ Just::
 Usage
 =====
 
-**Nota** : *See `Elevator <http://oleiade.github.com/Elevator>`_ documentation for details about server usage and implementation*
+**Nota** : See `Elevator <http://oleiade.github.com/Elevator>`_ documentation for details about server usage and implementation
 
 Databases workaround
 --------------------
