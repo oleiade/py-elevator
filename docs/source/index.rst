@@ -13,28 +13,28 @@ It was made with portability, stability, and focus on performance in mind.
 Requirements
 =============
 
+- zmq-3.X
+- leveldb
+- pyzmq (built with zmq-3.X)
+- plyvel
+
+
+Debian repository
+-----------------
+
+The ``deb.oleiade.com`` debian repository exposes ``libzmq3``, ``libzmq3-dev``, ``libleveldb1`` and ``libleveldb1-dev`` packages in order to ease your dependencies management. Just add the following line to your ``/etc/apt/sources.list``:
+
 .. code-block:: bash
 
-    pyzmq (built against zmq-3.X)
-    msgpack-python
+    deb http://deb.oleiade.com/debian oneiric main
 
 .. _installation:
 Installation
 =============
 
-To install the last stable version (master)
+Just::
 
-.. code-block:: bash
-
-    $ git clone git@github.com/oleiade/py-elevator
-    $ cd py-elevator
-    $ python setup.py install
-
-To install the last tag with pip
-
-.. code-block:: bash
-
-    pip install -e git+git@github.com/oleiade/py-elevator@{{tag-name}}.git#egg=py-elevator
+    pip install Elevator
 
 
 Usage
