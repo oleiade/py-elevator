@@ -235,12 +235,8 @@ class ElevatorTest(unittest2.TestCase):
         for r in res:
             self.assertIsNotNone(r)
             self.assertIsInstance(r, tuple)
-<<<<<<< HEAD
-            self.assertEqual(r[0], r[1])
-=======
             # boostraped values are from 10 to 19
             self.assertEqual(int(r[1]), int(r[0]) + 10)
->>>>>>> devel
 
     def test_slice_of_len_ten_without_keys(self):
         res = self.client.Slice('0', 9, include_key=False)
