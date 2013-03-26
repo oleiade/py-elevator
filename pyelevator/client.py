@@ -75,7 +75,7 @@ class Elevator(Client):
         return RangeIter(range_datas)
 
     def WriteBatch(self):
-        batch = WriteBatch(protocol=self.protocol,
+        batch = WriteBatch(transport=self.transport,
                            endpoint=self.endpoint,
                            auto_connect=False)
         batch.connect(self.db_name)
