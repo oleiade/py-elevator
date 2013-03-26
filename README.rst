@@ -36,7 +36,7 @@ Installation
 
 Just::
 
-    pip install Elevator
+    pip install py-elevator
 
 
 Usage
