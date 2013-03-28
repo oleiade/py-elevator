@@ -36,9 +36,10 @@ setup(
         'pyelevator.utils',
     ],
     package_dir={'': '.'},
+    include_package_data=False,
 
     install_requires=[
-        'pyzmq==13.0.0',
+        'pyzmq==13.0.2',
         'lz4',
         'msgpack-python'
     ],
