@@ -40,6 +40,8 @@ class Elevator(Client):
         return datas[0]
 
     def MGet(self, keys, *args, **kwargs):
+    	if not isinstance(keys, (list, tuple)):
+    	    raise TypeError("keys arg has to be whether of list or tuple type")
         return self.send(self.db_uid, 'MGET', keys, *args, **kwargs)
 
     def Put(self, key, value, *args, **kwargs):
