@@ -60,9 +60,10 @@ class Elevator(Client):
         return self.send(self.db_uid, 'RANGE', params, *args, **kwargs)
 
     def Slice(self, key_from=None, offset=None, *args, **kwargs):
-        include_value = kwargs.pop('include_value', True)
-        include_key = kwargs.pop('include_key', True)
-        params = [key_from, offset, include_key, include_value]
+        params = map(
+        	lambda p: str(p),
+        	[key_from, offset]
+       	)
 
         return self.send(self.db_uid, 'SLICE', params, *args, **kwargs)
 
