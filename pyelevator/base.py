@@ -94,11 +94,11 @@ class Client(object):
         return
 
     def listdb(self, *args, **kwargs):
-        return self.send(self.db_uid, 'DBLIST', {}, *args, **kwargs)
+        return self.send(None, 'DBLIST', {}, *args, **kwargs)
 
     def createdb(self, key, db_options=None, *args, **kwargs):
         db_options = db_options or {}
-        self.send(self.db_uid, 'DBCREATE', [key, db_options], *args, **kwargs)
+        self.send(None, 'DBCREATE', [key, db_options], *args, **kwargs)
         return
 
     def dropdb(self, key, *args, **kwargs):
