@@ -102,7 +102,7 @@ class Client(object):
         return
 
     def dropdb(self, key, *args, **kwargs):
-        return self.send(self.db_uid, 'DBDROP', [key], *args, **kwargs)
+        return self.send(None, 'DBDROP', [key], *args, **kwargs)
 
     def repairdb(self, *args, **kwargs):
         self.send(self.db_uid, 'DBREPAIR', {}, *args, **kwargs)
