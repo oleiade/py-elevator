@@ -20,15 +20,15 @@ class Request(object):
     """Handler objects for frontend->backend objects messages"""
     def __new__(cls, *args, **kwargs):
         try:
-            content = {
-                'meta': kwargs.pop('meta', {'compression': False}),
-                'uid': kwargs.get('db_uid'),  # uid can eventually be None
-                'cmd': kwargs.pop('command'),
-                'args': kwargs.pop('args'),
-            }
+            content = [
+                kwargs.get('db_uid'),  # uid can eventually be None
+                kwargs.pop('command'),
+            ]
+            content.extend(kwargs.pop('args'))  # Keep the request message flat
         except KeyError:
             raise MessageFormatError("Invalid request format : %s" % str(kwargs))
 
+        print content
         return msgpack.packb(content)
 
 
