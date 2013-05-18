@@ -38,6 +38,7 @@ class WriteBatch(Client):
         if self.status == self.STATUSES.OFFLINE:
             self.connect()
 
-        self.send(self.db_uid, 'BATCH', [self.container], *args, **kwargs)
+        flatten_container = [item for sublist in self.container for item in sublist]
+        self.send(self.db_uid, 'BATCH', flatten_container, *args, **kwargs)
         self.container = []
         return
