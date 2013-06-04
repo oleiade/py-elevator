@@ -2,11 +2,9 @@
 Py-elevator
 ===========
 
-*py-elevator* is a python client for `Elevator <http://github.com/oleiade/Elevator>`_, a Key-Value store written in Python and based on levelDB, allows high performance on-disk bulk read/write.
+*py-elevator* is a python client for `Elevator <http://github.com/oleiade/Elevator>`_, an open source, on-disk key-value. It provides high-performance bulk read-write operations over very large datasets while exposing a simple and efficient API.
 
-Allows async, multithreaded and/or remote access to a multi-leveldb backend.
-
-Relying on the zeromq network library and msgpack serialization format, it is made to be portable between languages and platforms.
+Written in Go, relying on the levelDB library as a storage backend, it provides a fast, async, and reliable access to a multi-db backend. Built upon the zeromq network library and msgpack serialization format it is made to be portable between languages and platforms.
 
 .. image:: http://api.flattr.com/button/flattr-badge-large.png
     :target: https://flattr.com/submit/auto?user_id=oleiade&url=http://github.com/oleiade/py-elevator&title=Py-elevator&language=&tags=github&category=software
@@ -16,7 +14,7 @@ Requirements
 
 - zmq-3.X
 - leveldb
-- pyzmq (built with zmq-3.X)
+- pyzmq (built against zmq-3.X)
 - plyvel
 
 
@@ -37,7 +35,6 @@ Installation
 Just::
 
     pip install py-elevator
-
 
 Usage
 =====
