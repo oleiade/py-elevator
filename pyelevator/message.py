@@ -6,7 +6,6 @@
 
 import msgpack
 import logging
-import lz4
 
 
 errors_logger = logging.getLogger("errors_logger")

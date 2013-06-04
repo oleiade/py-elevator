@@ -11,6 +11,3 @@ __author__ = "Oleiade"
 __license__ = "MIT"
 
 __version__ = '.'.join(map(str, version))
-
-from .client import Elevator
-from .batch import WriteBatch
