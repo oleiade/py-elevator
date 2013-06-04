@@ -4,7 +4,7 @@
 #
 # See the file LICENSE for copying permission.
 
-version = (0, "5c")
+version = (0, 0, 7)
 
 __title__ = "py-elevator"
 __author__ = "Oleiade"
