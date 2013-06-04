@@ -4,13 +4,10 @@
 #
 # See the file LICENSE for copying permission.
 
-version = (0, 0, "5a")
+version = (0, 0, 7)
 
 __title__ = "py-elevator"
 __author__ = "Oleiade"
 __license__ = "MIT"
 
 __version__ = '.'.join(map(str, version))
-
-from .client import Elevator
-from .batch import WriteBatch

@@ -8,7 +8,7 @@ root = os.path.abspath(os.path.dirname(__file__))
 
 version = __import__('pyelevator').__version__
 
-with open(os.path.join(root, 'README.md')) as f:
+with open(os.path.join(root, 'README.rst')) as f:
     README = f.read()
 
 setup(
@@ -16,7 +16,7 @@ setup(
     version=version,
     license='MIT',
 
-    description = 'Python client for key/value database Elevator',
+    description = 'Python client for on-disk key/value database Elevator',
     long_description=README,
 
     author='Oleiade',
@@ -24,10 +24,10 @@ setup(
     url='http://github.com/oleiade/py-elevator',
 
     classifiers=[
-        'Development Status :: 0.4',
-        'Environment :: Unix-like Systems',
-        'Programming Language :: Python',
-        'Operating System :: Unix-like',
+        'Development Status :: 5 - Production/Stable',
+        'Programming Language :: Python :: 2.7',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: Unix',
     ],
     keywords='py-elevator elevator leveldb database key-value',
 
@@ -36,9 +36,10 @@ setup(
         'pyelevator.utils',
     ],
     package_dir={'': '.'},
+    include_package_data=False,
 
     install_requires=[
-        'pyzmq==0.13.0',
+        'pyzmq',
         'msgpack-python'
     ],
 )

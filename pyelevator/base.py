@@ -9,7 +9,7 @@ from __future__ import absolute_import
 import zmq
 
 from .constants import FAILURE_STATUS
-from .message import Request, Response, ResponseHeader
+from .message import Request, Response
 from .error import ELEVATOR_ERROR, TimeoutError
 from .utils.snippets import sec_to_ms, ms_to_sec
 from .utils.patterns import enum
@@ -19,9 +19,9 @@ class Client(object):
     STATUSES = enum('ONLINE', 'OFFLINE')
 
     def __init__(self, db_name=None, *args, **kwargs):
-        self.protocol = kwargs.pop('protocol', 'tcp')
+        self.transport = kwargs.pop('transport', 'tcp')
         self.endpoint = kwargs.pop('endpoint', '127.0.0.1:4141')
-        self.host = "%s://%s" % (self.protocol, self.endpoint)
+        self.host = "%s://%s" % (self.transport, self.endpoint)
 
         self.context = None
         self.socket = None
@@ -94,15 +94,18 @@ class Client(object):
         return
 
     def listdb(self, *args, **kwargs):
-        return self.send(self.db_uid, 'DBLIST', {}, *args, **kwargs)
+        return self.send(None, 'DBLIST', {}, *args, **kwargs)
 
     def createdb(self, key, db_options=None, *args, **kwargs):
         db_options = db_options or {}
-        self.send(self.db_uid, 'DBCREATE', [key, db_options], *args, **kwargs)
+        options_pairs = [(k, v) for k, v in db_options.iteritems()]
+        flat_options = [item for sublist in options_pairs for item in sublist]
+
+        self.send(None, 'DBCREATE', [key] + flat_options, *args, **kwargs)
         return
 
     def dropdb(self, key, *args, **kwargs):
-        return self.send(self.db_uid, 'DBDROP', [key], *args, **kwargs)
+        return self.send(None, 'DBDROP', [key], *args, **kwargs)
 
     def repairdb(self, *args, **kwargs):
         self.send(self.db_uid, 'DBREPAIR', {}, *args, **kwargs)
@@ -111,7 +114,6 @@ class Client(object):
     def send(self, db_uid, command, arguments, *args, **kwargs):
         orig_timeout = ms_to_sec(self.timeout)  # Store updates is made from seconds
         timeout = kwargs.pop('timeout', 0)
-        compression = kwargs.pop('compression', False)
 
         # If a specific timeout value was provided
         # store the old value, and update current timeout
@@ -120,17 +122,15 @@ class Client(object):
 
         self.socket.send_multipart([Request(db_uid=db_uid,
                                             command=command,
-                                            args=arguments,
-                                            meta={'compression': compression})],)
+                                            args=arguments)],)
 
         try:
-            raw_header, raw_response = self.socket.recv_multipart()
-            header = ResponseHeader(raw_header)
-            response = Response(raw_response, compression=compression)
+            raw_response = self.socket.recv_multipart()[0]
+            response = Response(raw_response)
 
-            if header.status == FAILURE_STATUS:
-                raise ELEVATOR_ERROR[header.err_code](header.err_msg)
-        except zmq.core.error.ZMQError:
+            if response.status == FAILURE_STATUS:
+                raise ELEVATOR_ERROR[response.err_code](response.err_msg)
+        except zmq.ZMQError:
             # Restore original timeout and raise
             self.timeout = orig_timeout
             raise TimeoutError("Timeout : Server did not respond in time")
@@ -138,4 +138,4 @@ class Client(object):
         # Restore original timeout
         self.timeout = orig_timeout
 
-        return response.datas
+        return response.data

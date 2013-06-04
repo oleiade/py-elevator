@@ -40,7 +40,9 @@ class Elevator(Client):
         return datas[0]
 
     def MGet(self, keys, *args, **kwargs):
-        return self.send(self.db_uid, 'MGET', [keys], *args, **kwargs)
+    	if not isinstance(keys, (list, tuple)):
+    	    raise TypeError("keys arg has to be whether of list or tuple type")
+        return self.send(self.db_uid, 'MGET', keys, *args, **kwargs)
 
     def Put(self, key, value, *args, **kwargs):
         self.send(self.db_uid, 'PUT', [key, value], *args, **kwargs)
@@ -51,31 +53,31 @@ class Elevator(Client):
         return
 
     def Range(self, start=None, limit=None, *args, **kwargs):
-        include_value = kwargs.pop('include_value', True)
-        include_key = kwargs.pop('include_key', True)
-        params = [start, limit, include_key, include_value]
+        params = [start, limit]
+        result = self.send(self.db_uid, 'RANGE', params, *args, **kwargs)
 
-        return self.send(self.db_uid, 'RANGE', params, *args, **kwargs)
+        # Return paired results
+        return zip(result[::2], result[1::2])
 
     def Slice(self, key_from=None, offset=None, *args, **kwargs):
-        include_value = kwargs.pop('include_value', True)
-        include_key = kwargs.pop('include_key', True)
-        params = [key_from, offset, include_key, include_value]
+        params = map(
+        	lambda p: str(p),
+        	[key_from, offset]
+       	)
 
-        return self.send(self.db_uid, 'SLICE', params, *args, **kwargs)
+        result = self.send(self.db_uid, 'SLICE', params, *args, **kwargs)
+
+        # Return paired results
+        return zip(result[::2], result[1::2])
 
     def RangeIter(self, key_from=None, key_to=None, *args, **kwargs):
-        include_value = kwargs.pop('include_value', True)
-        include_key = kwargs.pop('include_key', True)
-
         cmd = self.Range if isinstance(key_to, str) else self.Slice
-        range_datas = cmd(key_from, key_to,
-                          include_key=include_key, include_value=include_value)
+        range_datas = cmd(key_from, key_to)
 
         return RangeIter(range_datas)
 
     def WriteBatch(self):
-        batch = WriteBatch(protocol=self.protocol,
+        batch = WriteBatch(transport=self.transport,
                            endpoint=self.endpoint,
                            auto_connect=False)
         batch.connect(self.db_name)

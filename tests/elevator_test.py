@@ -166,6 +166,28 @@ class ElevatorTest(unittest2.TestCase):
             self.assertGreaterEqual(int(r), 0)
             self.assertLessEqual(int(r), 9)
 
+    def test_range_of_len_ten_without_keys(self):
+        res = self.client.Range('0', '9', include_key=False)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 10)
+
+        for r in res:
+            self.assertIsNotNone(r)
+            self.assertGreaterEqual(int(r), 0)
+            self.assertLessEqual(int(r), 9)
+
+    def test_range_of_len_ten_without_values(self):
+        res = self.client.Range('0', '9', include_value=False)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 10)
+
+        for r in res:
+            self.assertIsNotNone(r)
+            self.assertGreaterEqual(int(r), 0)
+            self.assertLessEqual(int(r), 9)
+
     def test_range_of_len_one(self):
         res = self.client.Range('1', '1')
 
@@ -182,6 +204,20 @@ class ElevatorTest(unittest2.TestCase):
         self.assertIsInstance(res, tuple)
         self.assertEqual(len(res), 1)
         self.assertEqual(res, ('11',))
+
+    def test_range_of_len_one_without_values(self):
+        res = self.client.Range('1', '1', include_value=False)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res, ('1',))
+
+    def test_range_of_len_one_without_keys(self):
+        res = self.client.Range('1', '1', include_key=False)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res, ('1',))
 
     def test_range_of_len_one_without_values(self):
         res = self.client.Range('1', '1', include_value=False)
@@ -211,8 +247,7 @@ class ElevatorTest(unittest2.TestCase):
         for r in res:
             self.assertIsNotNone(r)
             self.assertGreaterEqual(int(r), 0)
-            # boostraped values are from 10 to 19
-            self.assertLessEqual(int(r), 19)
+            self.assertLessEqual(int(r), 9)
 
     def test_slice_of_len_ten_without_values(self):
         res = self.client.Slice('0', 9, include_value=False)
@@ -241,6 +276,20 @@ class ElevatorTest(unittest2.TestCase):
         self.assertIsInstance(res, tuple)
         self.assertEqual(len(res), 1)
         self.assertEqual(res, ('11',))
+
+    def test_slice_of_len_one_without_values(self):
+        res = self.client.Slice('1', 1, include_value=False)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res, ('1',))
+
+    def test_slice_of_len_one_without_keys(self):
+        res = self.client.Slice('1', 1, include_key=False)
+
+        self.assertIsInstance(res, tuple)
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res, ('1',))
 
     def test_slice_of_len_one_without_values(self):
         res = self.client.Slice('1', 1, include_value=False)

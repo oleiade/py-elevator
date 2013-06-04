@@ -6,7 +6,6 @@
 
 import msgpack
 import logging
-import lz4
 
 
 errors_logger = logging.getLogger("errors_logger")
@@ -20,12 +19,11 @@ class Request(object):
     """Handler objects for frontend->backend objects messages"""
     def __new__(cls, *args, **kwargs):
         try:
-            content = {
-                'meta': kwargs.pop('meta', {'compression': False}),
-                'uid': kwargs.get('db_uid'),  # uid can eventually be None
-                'cmd': kwargs.pop('command'),
-                'args': kwargs.pop('args'),
-            }
+            content = [
+                kwargs.get('db_uid'),  # uid can eventually be None
+                kwargs.pop('command'),
+            ]
+            content.extend(kwargs.pop('args'))  # Keep the request message flat
         except KeyError:
             raise MessageFormatError("Invalid request format : %s" % str(kwargs))
 
@@ -34,30 +32,14 @@ class Request(object):
 
 class Response(object):
     def __init__(self, raw_message, *args, **kwargs):
-        compression = kwargs.pop('compression', False)
-        raw_message = lz4.loads(raw_message) if compression else raw_message
         message = msgpack.unpackb(raw_message)
 
         try:
-            self.datas = message['datas']
-        except KeyError:
-            errors_logger.exception("Invalid response message : %s" %
-                                    message)
-            raise MessageFormatError("Invalid response message")
-
-
-class ResponseHeader(object):
-    def __init__(self, raw_header):
-        header = msgpack.unpackb(raw_header)
-
-        try:
-            self.status = header.pop('status')
-            self.err_code = header.pop('err_code')
-            self.err_msg = header.pop('err_msg')
-        except KeyError:
-            errors_logger.exception("Invalid response header : %s" %
-                                    header)
-            raise MessageFormatError("Invalid response header")
-
-        for key, value in header.iteritems():
-            setattr(self, key, value)
+            self.status = message[0]
+            self.err_code = message[1]
+            self.err_msg = message[2]
+            self.data = message[3:]
+        except IndexError:
+            errors_logger.exception("Invalid response message: {}"
+                                    .format(message))
+            MessageFormatError("Invalid response message")
